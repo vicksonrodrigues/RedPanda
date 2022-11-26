@@ -5,7 +5,13 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const config = require('./utils/config');
-const middleware = require('./utils/middleware');
+const {
+  errorHandler,
+  customerExtractor,
+  requestLogger,
+  unknownEndpoint,
+  employeeExtractor,
+} = require('./utils/middleware');
 const logger = require('./utils/logger');
 const reviewRouter = require('./controllers/reviews');
 const eventRouter = require('./controllers/restaurantEvents');
@@ -15,6 +21,7 @@ const menuRouter = require('./controllers/menus');
 const orderRouter = require('./controllers/orders');
 const reservationRouter = require('./controllers/reservations');
 const loginRouter = require('./controllers/login');
+const employeeRouter = require('./controllers/employees');
 
 const app = express();
 
@@ -31,9 +38,9 @@ mongoose
 
 app.use(cors());
 app.use(express.json());
-app.use(middleware.requestLogger);
-
-app.use('/api/customers', customerRouter);
+app.use(requestLogger);
+app.use('/api/customers', customerExtractor, customerRouter);
+app.use('/api/employees', employeeExtractor, employeeRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/reviews', reviewRouter);
@@ -42,7 +49,7 @@ app.use('/api/gallery', galleryRouter);
 app.use('/api/reservations', reservationRouter);
 app.use('/api/orders', orderRouter);
 
-app.use(middleware.unknownEndpoint);
-app.use(middleware.errorHandler);
+app.use(unknownEndpoint);
+app.use(errorHandler);
 
 module.exports = app;

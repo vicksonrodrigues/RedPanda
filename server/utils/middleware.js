@@ -1,4 +1,6 @@
+const jwt = require('jsonwebtoken');
 const logger = require('./logger');
+const Employee = require('../models/employee');
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method);
@@ -17,17 +19,57 @@ const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
 
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' });
+    return response.status(400).send({
+      error: 'malformatted id',
+    });
   }
   if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
+  }
+  if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({
+      error: 'invalid token',
+    });
+  }
+  if (error.name === 'TokenExpiredError') {
+    return response.status(401).json({
+      error: 'token expired',
+    });
   }
 
   next(error);
 };
 
+// eslint-disable-next-line consistent-return
+const customerExtractor = async (request, response, next) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' });
+    }
+    request.customerId = decodedToken.id;
+  }
+  next();
+};
+// eslint-disable-next-line consistent-return
+const employeeExtractor = async (request, response, next) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET);
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' });
+    }
+    request.employee = await Employee.findById(decodedToken.id);
+  }
+
+  next();
+};
+
 module.exports = {
   requestLogger,
+  employeeExtractor,
   unknownEndpoint,
   errorHandler,
+  customerExtractor,
 };

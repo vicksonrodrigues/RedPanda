@@ -1,21 +1,35 @@
 const bcrypt = require('bcryptjs');
 const customerRouter = require('express').Router();
 const Customer = require('../models/customer');
-// get All customer details
+
+// get All customer details just for testing
+// remove in final build
 customerRouter.get('/', async (request, response) => {
   const customers = await Customer.find({}).populate('orders').populate('reservations');
 
   response.json(customers);
 });
+
 // get single customer
 customerRouter.get('/:id', async (request, response) => {
-  const customers = await Customer.findById(request.params.id);
+  const customer = await Customer.findById(request.params.id);
 
-  response.json(customers);
+  if (customer) {
+    response.json(customer);
+  } else {
+    response.status(404).end();
+  }
 });
 // for SignIn
 customerRouter.post('/', async (request, response) => {
   const { firstName, lastName, phone, email, password } = request.body;
+
+  const existingCustomer = await Customer.findOne({ email });
+  if (existingCustomer) {
+    return response.status(400).json({
+      error: 'email must be unique',
+    });
+  }
 
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -27,15 +41,19 @@ customerRouter.post('/', async (request, response) => {
     email,
     passwordHash,
   });
-  const savedUser = await customer.save();
+  const savedCustomer = await customer.save();
 
-  response.status(201).json(savedUser);
+  return response.status(201).json(savedCustomer);
 });
 
 // delete a customer
-customerRouter.delete('/:id', async (request, response) => {
-  await Customer.findByIdAndRemove(request.params.id);
-  response.status(204).end();
+customerRouter.delete('/delete', async (request, response) => {
+  const deletedCustomer = await Customer.findByIdAndRemove(request.customerId);
+  if (!deletedCustomer) {
+    return response.status(404).end();
+  }
+
+  return response.status(204).end();
 });
 
 // update name,phoneNo

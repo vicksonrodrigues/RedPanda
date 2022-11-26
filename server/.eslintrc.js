@@ -15,5 +15,6 @@ module.exports = {
   plugins: ['prettier'],
   rules: {
     'prettier/prettier': 'error',
+    'no-underscore-dangle': ['error', { allow: ['_id', '__v'] }],
   },
 };

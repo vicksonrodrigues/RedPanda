@@ -1,18 +1,7 @@
 /* eslint-disable no-param-reassign */
 const mongoose = require('mongoose');
 
-const addressSchema = new mongoose.Schema({
-  addressLine1: { type: String, required: true },
-  addressLine2: { type: String },
-  landmark: { type: String },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, default: 'India' },
-  zip: { type: String, match: [/^[1-9][0-9]{5}$/], required: true },
-  tag: { type: String, required: true },
-});
-
-const customerSchema = new mongoose.Schema(
+const employeeSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
@@ -40,24 +29,14 @@ const customerSchema = new mongoose.Schema(
       immutable: true,
     },
     passwordHash: { type: String, required: true },
-    addresses: [addressSchema],
-    orders: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-      },
-    ],
-    reservations: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Reservation',
-      },
-    ],
+    department: { type: String, required: true, enum: ['kitchen', 'reception', 'admin'] },
+    position: { type: String, required: true },
+    accessLevel: { type: Number, required: true, min: 1, max: 3 },
   },
   { timestamps: true },
 );
 
-customerSchema.set('toJSON', {
+employeeSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
@@ -66,4 +45,4 @@ customerSchema.set('toJSON', {
   },
 });
 
-module.exports = mongoose.model('Customer', customerSchema);
+module.exports = mongoose.model('Employee', employeeSchema);
