@@ -64,7 +64,7 @@ const employeeToken = async (email, password) => {
 
 const employeeInDb = async () => {
   const employees = await Employee.find({});
-  return employees.map((employee) => employee.toJSON());
+  return employees.map((employee) => employee.toJSON()); // (.toJSON) used for removing _id,__v,passwordHash
 };
 
 const nonExistingId = async () => {

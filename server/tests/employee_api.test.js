@@ -108,8 +108,7 @@ describe('for employee api', () => {
     });
     describe('using access level 1 token', () => {
       test('succeeds with a valid id ', async () => {
-        const employeesAtStart = await helper.employeeInDb();
-        const employeeToView = employeesAtStart[1];
+        const employeeToView = await Employee.findOne({ accessLevel: 2 });
         const token = await helper.employeeToken('adminfirst@gmail.com', '123456789xyz');
 
         const resultEmployee = await api
@@ -121,7 +120,7 @@ describe('for employee api', () => {
 
         expect(resultEmployee.body).toEqual(processedCustomerToView);
       });
-      test('succeeds with a invalid id ', async () => {
+      test('fails with a invalid id ', async () => {
         const token = await helper.employeeToken('adminfirst@gmail.com', '123456789xyz');
         const invalidId = '5a3d5da59070081a82a3445';
         await api
@@ -141,8 +140,7 @@ describe('for employee api', () => {
     });
     describe('using lower level token', () => {
       test('succeeds when employee fetch its own data  ', async () => {
-        const employeesAtStart = await helper.employeeInDb();
-        const employeeToView = employeesAtStart[1];
+        const employeeToView = await Employee.findOne({ accessLevel: 2 });
         const token = await helper.employeeToken('adminSecond@gmail.com', '123456789abc');
 
         const resultEmployee = await api
@@ -155,8 +153,7 @@ describe('for employee api', () => {
         expect(resultEmployee.body).toEqual(processedCustomerToView);
       });
       test('fails when employee fetch other employee data ', async () => {
-        const employeesAtStart = await helper.employeeInDb();
-        const employeeToView = employeesAtStart[0];
+        const employeeToView = await Employee.findOne({ accessLevel: 1 });
         const token = await helper.employeeToken('adminSecond@gmail.com', '123456789abc');
 
         const result = await api
@@ -172,31 +169,190 @@ describe('for employee api', () => {
 
   describe('updating employee details where', () => {
     describe('editing basic details', () => {
-      describe('using level 1 token', () => {
-        test('succeeds with valid data', async () => {
-          const employeesAtStart = await helper.employeeInDb();
-          const employeeToUpdate = employeesAtStart[1];
-          const editedEmployee = {
-            phone: 9832154670,
-            department: 'admin',
-            position: 'manager',
-          };
+      test('succeeds with valid data with level 1 token ', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          phone: 9832154670,
+          department: 'admin',
+          position: 'manager',
+        };
 
-          const email = 'adminfirst@gmail.com';
-          const password = '123456789xyz';
-          const token = await helper.employeeToken(email, password);
+        const email = 'adminfirst@gmail.com';
+        const password = '123456789xyz';
+        const token = await helper.employeeToken(email, password);
 
-          await api
-            .put(`/api/employees/${employeeToUpdate.id}`)
-            .send(editedEmployee)
-            .set('Authorization', `bearer ${token}`)
-            .expect(200);
+        await api
+          .put(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(200);
 
-          const employeeAtEnd = await helper.employeeInDb();
-          const aEmployeeAtEnd = employeeAtEnd.find((b) => b.id === employeeToUpdate.id);
-          expect(aEmployeeAtEnd.department).toBe('admin');
-        });
+        const employeeAtEnd = await helper.employeeInDb();
+        const aEmployeeAtEnd = employeeAtEnd.find((b) => b.id === employeeToUpdate.id);
+        expect(aEmployeeAtEnd.department).toBe('admin');
+        expect(aEmployeeAtEnd.position).toBe('manager');
+        expect(aEmployeeAtEnd.phone).toBe('9832154670');
       });
+      test('fails with valid data without level 1 token', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          phone: 9832154670,
+          department: 'admin',
+          position: 'manager',
+        };
+
+        const email = 'adminSecond@gmail.com';
+        const password = '123456789abc';
+        const token = await helper.employeeToken(email, password);
+
+        await api
+          .put(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(403);
+
+        const employeeAtEnd = await helper.employeeInDb();
+        const aEmployeeAtEnd = employeeAtEnd.find((b) => b.id === employeeToUpdate.id);
+        expect(aEmployeeAtEnd.department).toBe(employeeToUpdate.department);
+        expect(aEmployeeAtEnd.position).toBe(employeeToUpdate.position);
+        expect(aEmployeeAtEnd.phone).toBe(employeeToUpdate.phone);
+      });
+
+      test('fails with proper status code if token is not provided', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          phone: 9832154670,
+          department: 'admin',
+          position: 'manager',
+        };
+
+        const result = await api
+          .put(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .expect(401);
+
+        expect(result.body.error).toContain(`token missing or invalid`);
+      });
+    });
+    describe('editing password', () => {
+      test('success with proper status code with access level 1 token', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          email: 'adminSecond@gmail.com',
+          newPassword: '123456789def',
+        };
+
+        const email = 'adminfirst@gmail.com';
+        const password = '123456789xyz';
+        const token = await helper.employeeToken(email, password);
+
+        await api
+          .patch(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(200);
+
+        const aEmployeeAtEnd = await Employee.findOne({ email: editedEmployee.email });
+        expect(aEmployeeAtEnd.passwordHash).not.toBe(employeeToUpdate.passwordHash);
+      });
+      test('fails with proper status code without access level 1 token', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          email: 'adminSecond@gmail.com',
+          newPassword: '123456789def',
+        };
+
+        const email = 'adminSecond@gmail.com';
+        const password = '123456789abc';
+        const token = await helper.employeeToken(email, password);
+
+        await api
+          .patch(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(403);
+        const aEmployeeAtEnd = await Employee.findOne({ email: editedEmployee.email });
+        expect(aEmployeeAtEnd.passwordHash).toBe(employeeToUpdate.passwordHash);
+      });
+      test('fails with proper status code and message if email is not provided ', async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          newPassword: '123456789def',
+        };
+
+        const email = 'adminfirst@gmail.com';
+        const password = '123456789xyz';
+        const token = await helper.employeeToken(email, password);
+
+        const result = await api
+          .patch(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(400);
+
+        expect(result.body.error).toBe('Email not provided');
+      });
+      test(`fails with proper status code and message if email and id doesn't belong to same employee`, async () => {
+        const employeeToUpdate = await Employee.findOne({ accessLevel: 2 });
+        const editedEmployee = {
+          email: 'adminfirst@gmail.com',
+          newPassword: '123456789def',
+        };
+
+        const email = 'adminfirst@gmail.com';
+        const password = '123456789xyz';
+        const token = await helper.employeeToken(email, password);
+
+        const result = await api
+          .patch(`/api/employees/${employeeToUpdate.id}`)
+          .send(editedEmployee)
+          .set('Authorization', `bearer ${token}`)
+          .expect(400);
+        expect(result.body.error).toBe('Email doesnot match with user');
+      });
+    });
+  });
+
+  describe('deleting employee from database', () => {
+    test('succeeds with status code 204 if id is valid', async () => {
+      const employeeToDelete = await Employee.findOne({ accessLevel: 2 });
+      const email = 'adminfirst@gmail.com';
+      const password = '123456789xyz';
+      const token = await helper.employeeToken(email, password);
+      await api
+        .delete(`/api/employees/${employeeToDelete._id}`)
+        .set('Authorization', `bearer ${token}`)
+        .expect(204);
+      const employeesAtEnd = await helper.employeeInDb();
+      expect(employeesAtEnd).toHaveLength(helper.sampleEmployee.length - 1);
+    });
+    test('fails with status code 404 if customer does not exist', async () => {
+      const validNonexistingId = await helper.nonExistingId();
+      const email = 'adminfirst@gmail.com';
+      const password = '123456789xyz';
+      const token = await helper.employeeToken(email, password);
+
+      await api
+        .delete(`/api/employees/${validNonexistingId}`)
+        .set('Authorization', `bearer ${token}`)
+        .expect(404);
+    });
+    test('fails with status code 401 if token is missing', async () => {
+      const employeeToDelete = await Employee.findOne({ accessLevel: 2 });
+      const result = await api.delete(`/api/employees/${employeeToDelete._id}`).expect(401);
+      expect(result.body.error).toBe('token missing or invalid');
+    });
+    test('fails with status code 403 if non authorized personal try to delete', async () => {
+      const validNonexistingId = await helper.nonExistingId();
+      const email = 'adminSecond@gmail.com';
+      const password = '123456789abc';
+      const token = await helper.employeeToken(email, password);
+
+      const result = await api
+        .delete(`/api/employees/${validNonexistingId}`)
+        .set('Authorization', `bearer ${token}`)
+        .expect(403);
+      expect(result.body.error).toBe(`Don't have permission to delete a new employee`);
     });
   });
 });
@@ -204,3 +360,5 @@ describe('for employee api', () => {
 afterAll(() => {
   mongoose.connection.close();
 });
+
+// npm test -- tests/employee_api.test.js

@@ -85,4 +85,48 @@ employeeRouter.put('/:id', async (request, response) => {
     .end();
 });
 
+employeeRouter.patch('/:id', async (request, response) => {
+  if (!request.employee) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  const { email, newPassword } = request.body;
+  if (!email) {
+    return response.status(400).json({ error: 'Email not provided' });
+  }
+  const employee = await Employee.findOne({ email });
+  if (employee.id !== request.params.id) {
+    return response.status(400).json({ error: 'Email doesnot match with user' });
+  }
+  if (request.employee.accessLevel === 1 && email) {
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+    employee.passwordHash = newPasswordHash;
+    const updatedPassword = await employee.save();
+    return response.status(200).json(updatedPassword);
+  }
+
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to update a employee details` })
+    .end();
+});
+
+employeeRouter.delete('/:id', async (request, response) => {
+  if (!request.employee) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.employee.accessLevel === 1) {
+    const deletedEmployee = await Employee.findByIdAndRemove(request.params.id);
+    if (!deletedEmployee) {
+      return response.status(404).end();
+    }
+
+    return response.status(204).end();
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to delete a new employee` })
+    .end();
+});
+
 module.exports = employeeRouter;

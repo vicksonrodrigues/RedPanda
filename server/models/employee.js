@@ -42,7 +42,7 @@ employeeSchema.set('toJSON', {
     delete returnedObject._id;
     delete returnedObject.__v;
     delete returnedObject.passwordHash;
-  },
+  }, // for this to actually work use .toJSON with the output or response from the query
 });
 
 module.exports = mongoose.model('Employee', employeeSchema);
