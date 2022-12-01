@@ -7,10 +7,9 @@ const mongoose = require('mongoose');
 const config = require('./utils/config');
 const {
   errorHandler,
-  customerExtractor,
+  tokenExtractor,
   requestLogger,
   unknownEndpoint,
-  employeeExtractor,
 } = require('./utils/middleware');
 const logger = require('./utils/logger');
 const reviewRouter = require('./controllers/reviews');
@@ -43,8 +42,9 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
-app.use('/api/customers', customerExtractor, customerRouter);
-app.use('/api/employees', employeeExtractor, employeeRouter);
+app.use(tokenExtractor);
+app.use('/api/customers', customerRouter);
+app.use('/api/employees', employeeRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/reviews', reviewRouter);

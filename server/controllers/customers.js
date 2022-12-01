@@ -3,22 +3,47 @@ const customerRouter = require('express').Router();
 const Customer = require('../models/customer');
 
 // get All customer details just for testing
-// remove in final build
 customerRouter.get('/', async (request, response) => {
-  const customers = await Customer.find({}).populate('orders').populate('reservations');
-
-  response.json(customers);
+  if (!request.employee && !request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.employee.accessLevel === 1) {
+    const customers = await Customer.find({}).populate('orders').populate('reservations');
+    return response.json(customers);
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to access this customer details` })
+    .end();
 });
 
 // get single customer
 customerRouter.get('/:id', async (request, response) => {
-  const customer = await Customer.findById(request.params.id);
+  let accessGranted = false;
 
-  if (customer) {
-    response.json(customer);
+  if (request.employee) {
+    if (request.employee.accessLevel === 1) {
+      accessGranted = true;
+    }
+  } else if (request.customerId) {
+    if (request.params.id === request.customerId) {
+      accessGranted = true;
+    }
   } else {
-    response.status(404).end();
+    return response.status(401).json({ error: 'token missing or invalid' });
   }
+
+  if (accessGranted) {
+    const customer = await Customer.findById(request.params.id);
+    if (customer) {
+      return response.json(customer);
+    }
+    return response.status(404).json({ error: 'Customer is not available in database' }).end();
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to access this customer details` })
+    .end();
 });
 // for SignIn
 customerRouter.post('/', async (request, response) => {
@@ -47,117 +72,180 @@ customerRouter.post('/', async (request, response) => {
 });
 
 // delete a customer
-customerRouter.delete('/delete', async (request, response) => {
-  const deletedCustomer = await Customer.findByIdAndRemove(request.customerId);
-  if (!deletedCustomer) {
-    return response.status(404).end();
+customerRouter.delete('/:id', async (request, response) => {
+  if (!request.employee) {
+    return response.status(401).json({ error: 'token missing or invalid' });
   }
+  if (request.employee.accessLevel === 1) {
+    const deletedCustomer = await Customer.findByIdAndRemove(request.params.id);
+    if (!deletedCustomer) {
+      return response
+        .status(404)
+        .json({ error: `Couldn't delete as data is not available ` })
+        .end();
+    }
 
-  return response.status(204).end();
+    return response.status(204).end();
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to delete this customer details` })
+    .end();
 });
 
 // update name,phoneNo
-customerRouter.put('/:id', async (request, response) => {
+customerRouter.put('/updateBasic/:id', async (request, response) => {
   const { firstName, lastName, phone } = request.body;
+  if (!request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.params.id === request.customerId) {
+    const modifiedCustomer = {
+      firstName,
+      lastName,
+      phone,
+    };
 
-  const modifiedCustomer = {
-    firstName,
-    lastName,
-    phone,
-  };
+    const updatedCustomer = await Customer.findByIdAndUpdate(request.params.id, modifiedCustomer, {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    });
 
-  const updatedCustomer = await Customer.findByIdAndUpdate(request.params.id, modifiedCustomer, {
-    new: true,
-    runValidators: true,
-    context: 'query',
-  });
-
-  response.json(updatedCustomer);
+    return response.json(updatedCustomer);
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to modify this customer's details` })
+    .end();
 });
 // add a address
 
 customerRouter.put('/newAddress/:id', async (request, response) => {
   const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
-  const customer = await Customer.findById(request.params.id);
+  if (!request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.params.id === request.customerId) {
+    const customer = await Customer.findById(request.params.id);
 
-  const newAddress = {
-    addressLine1,
-    addressLine2,
-    landmark,
-    city,
-    state,
-    country,
-    zip,
-    tag,
-  };
+    const newAddress = {
+      addressLine1,
+      addressLine2,
+      landmark,
+      city,
+      state,
+      country,
+      zip,
+      tag,
+    };
 
-  customer.addresses.push(newAddress);
-  const savedAddress = await customer.save();
+    customer.addresses.push(newAddress);
+    const savedAddress = await customer.save();
 
-  response.json(savedAddress);
-  response.json(customer);
+    return response.json(savedAddress);
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to modify this customer's details` })
+    .end();
 });
 
 // update address
 customerRouter.put('/updateAddress/:id/:addressId', async (request, response) => {
   const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
+  if (!request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.params.id === request.customerId) {
+    const newAddress = {
+      _id: request.params.addressId,
+      addressLine1,
+      addressLine2,
+      landmark,
+      city,
+      state,
+      country,
+      zip,
+      tag,
+    };
 
-  const newAddress = {
-    _id: request.params.addressId,
-    addressLine1,
-    addressLine2,
-    landmark,
-    city,
-    state,
-    country,
-    zip,
-    tag,
-  };
-
-  const updatedAddress = await Customer.findOneAndUpdate(
-    {
-      _id: request.params.id,
-      'addresses._id': request.params.addressId,
-    },
-    {
-      $set: {
-        'addresses.$': newAddress,
+    const updatedAddress = await Customer.findOneAndUpdate(
+      {
+        _id: request.params.id,
+        'addresses._id': request.params.addressId,
       },
-    },
-    {
-      new: true,
-      runValidators: true,
-      context: 'query',
-    },
-  );
+      {
+        $set: {
+          'addresses.$': newAddress,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+        context: 'query',
+      },
+    );
+    if (updatedAddress === null) {
+      return response.status(404).json({ error: `No address present at the given address id` });
+    }
 
-  response.json(updatedAddress);
+    return response.json(updatedAddress);
+  }
+
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to modify this customer's details` })
+    .end();
 });
 
 // delete a address
 customerRouter.delete('/deleteAddress/:id/:addressId', async (request, response) => {
-  const customer = await Customer.findById(request.params.id);
-  customer.addresses.id(request.params.addressId).remove();
-  const savedAddress = await customer.save();
+  if (!request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
+  if (request.params.id === request.customerId) {
+    const customer = await Customer.findById(request.params.id);
 
-  response.json(savedAddress);
+    const addressTodelete = customer.addresses.find((a) => a.id === request.params.addressId);
+
+    if (addressTodelete) {
+      customer.addresses.pull(request.params.addressId);
+      await customer.save();
+
+      return response.status(204).end();
+    }
+    return response.status(404).json({ error: `No address present or address already deleted` });
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to modify this customer's details` })
+    .end();
 });
 
 // update password
-customerRouter.put('/changePassword/:id', async (request, response) => {
-  const customer = await Customer.findById(request.params.id);
-  const { currentPassword, newPassword } = request.body;
-  const passwordCorrect =
-    customer === null ? false : await bcrypt.compare(currentPassword, customer.passwordHash);
-  if (passwordCorrect) {
-    const saltRounds = 10;
-    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
-    customer.passwordHash = newPasswordHash;
-    const updatedPassword = await customer.save();
-    response.json(updatedPassword);
-  } else {
-    response.status(400).json('No Match Password').end();
+customerRouter.patch('/changePassword/:id', async (request, response) => {
+  if (!request.customerId) {
+    return response.status(401).json({ error: 'token missing or invalid' });
   }
+  if (request.customerId === request.params.id) {
+    const customer = await Customer.findById(request.params.id);
+    const { currentPassword, newPassword } = request.body;
+    const passwordCorrect =
+      customer === null ? false : await bcrypt.compare(currentPassword, customer.passwordHash);
+    if (passwordCorrect) {
+      const saltRounds = 10;
+      const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+      customer.passwordHash = newPasswordHash;
+      const updatedPassword = await customer.save();
+      return response.json(updatedPassword);
+    }
+    return response.status(400).json({ error: 'Password does not match' }).end();
+  }
+  return response
+    .status(403)
+    .json({ error: `Don't have permission to modify this customer's details` })
+    .end();
 });
 
 module.exports = customerRouter;

@@ -41,35 +41,29 @@ const errorHandler = (error, request, response, next) => {
 };
 
 // eslint-disable-next-line consistent-return
-const customerExtractor = async (request, response, next) => {
+const tokenExtractor = async (request, response, next) => {
   const authorization = request.get('authorization');
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET);
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token missing or invalid' });
     }
-    request.customerId = decodedToken.id;
-  }
-  next();
-};
-// eslint-disable-next-line consistent-return
-const employeeExtractor = async (request, response, next) => {
-  const authorization = request.get('authorization');
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    const decodedToken = jwt.verify(authorization.substring(7), process.env.SECRET);
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'token missing or invalid' });
+    if (decodedToken.belong === 'customer') {
+      console.log('Customer token recieved and verified');
+      request.customerId = decodedToken.id;
     }
-    request.employee = await Employee.findById(decodedToken.id);
-  }
 
+    if (decodedToken.belong === 'employee') {
+      const employee = await Employee.findById(decodedToken.id);
+      request.employee = employee.toJSON();
+    }
+  }
   next();
 };
 
 module.exports = {
   requestLogger,
-  employeeExtractor,
+  tokenExtractor,
   unknownEndpoint,
   errorHandler,
-  customerExtractor,
 };

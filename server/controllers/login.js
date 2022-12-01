@@ -21,6 +21,7 @@ loginRouter.post('/', async (request, response) => {
   const customerForToken = {
     email: customer.email,
     id: customer._id,
+    belong: 'customer',
   };
   const token = jwt.sign(customerForToken, config.SECRET);
   return response.status(200).send({ token, email: customer.email, firstName: customer.firstName });
@@ -39,11 +40,12 @@ loginRouter.post('/employees', async (request, response) => {
     });
   }
 
-  const customerForToken = {
+  const employeeForToken = {
     email: employee.email,
     id: employee._id,
+    belong: 'employee',
   };
-  const token = jwt.sign(customerForToken, config.SECRET);
+  const token = jwt.sign(employeeForToken, config.SECRET);
   return response.status(200).send({ token, email: employee.email, firstName: employee.firstName });
 });
 

@@ -57,6 +57,7 @@ const employeeToken = async (email, password) => {
   const customerForToken = {
     email: employee.email,
     id: employee._id,
+    belong: 'employee',
   };
   const token = jwt.sign(customerForToken, config.SECRET);
   return token;
