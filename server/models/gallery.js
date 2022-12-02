@@ -5,11 +5,11 @@ const mongoose = require('mongoose');
 const gallerySchema = new mongoose.Schema(
   {
     title: { type: String, trim: true, maxLength: 64 },
-    img: { type: String, required: true },
+    img: { type: String, required: [true, 'image link required'] },
     groupBy: {
       type: String,
-      enum: ['ambience', 'events', 'foods'],
-      required: true,
+      enum: { values: ['ambience', 'events', 'foods'], message: '{VALUE} is not supported' },
+      required: [true, 'groupBy value required'],
     },
   },
   { timestamps: true },

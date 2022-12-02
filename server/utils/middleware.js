@@ -49,7 +49,6 @@ const tokenExtractor = async (request, response, next) => {
       return response.status(401).json({ error: 'token missing or invalid' });
     }
     if (decodedToken.belong === 'customer') {
-      console.log('Customer token recieved and verified');
       request.customerId = decodedToken.id;
     }
 

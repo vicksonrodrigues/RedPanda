@@ -26,6 +26,15 @@ const sampleEmployee = [
   },
 ];
 
+const adminLogin = {
+  email: 'adminfirst@gmail.com',
+  password: '123456789xyz',
+};
+const nonAdminLogin = {
+  email: 'adminSecond@gmail.com',
+  password: '123456789abc',
+};
+
 const initalEmployee = async (employees) => {
   await Promise.all(
     employees.map(async (employee) => {
@@ -90,4 +99,6 @@ module.exports = {
   employeeToken,
   employeeInDb,
   nonExistingId,
+  adminLogin,
+  nonAdminLogin,
 };

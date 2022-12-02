@@ -343,13 +343,13 @@ describe('for employee api', () => {
       expect(result.body.error).toBe('token missing or invalid');
     });
     test('fails with status code 403 if non authorized personal try to delete', async () => {
-      const validNonexistingId = await helper.nonExistingId();
+      const employeeToDelete = await Employee.findOne({ accessLevel: 2 });
       const email = 'adminSecond@gmail.com';
       const password = '123456789abc';
       const token = await helper.employeeToken(email, password);
 
       const result = await api
-        .delete(`/api/employees/${validNonexistingId}`)
+        .delete(`/api/employees/${employeeToDelete._id}`)
         .set('Authorization', `bearer ${token}`)
         .expect(403);
       expect(result.body.error).toBe(`Don't have permission to delete a new employee`);
