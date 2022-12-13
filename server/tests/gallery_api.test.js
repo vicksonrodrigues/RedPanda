@@ -7,12 +7,12 @@ const api = supertest(app);
 const Gallery = require('../models/gallery');
 const employeeHelper = require('./testHelper/employee_test_helper');
 const galleryHelper = require('./testHelper/gallery_test_helper');
-const employee = require('../models/employee');
+const Employee = require('../models/employee');
 
-describe('for employee api', () => {
+describe('for gallery api', () => {
   beforeEach(async () => {
     await Gallery.deleteMany({});
-    await employee.deleteMany({});
+    await Employee.deleteMany({});
     await employeeHelper.initalEmployee(employeeHelper.sampleEmployee);
     await galleryHelper.initialGalleryItems(galleryHelper.sampleGalleryItems);
   });
@@ -183,7 +183,7 @@ describe('for employee api', () => {
         .expect('Content-Type', /application\/json/);
       expect(result.body.error).toContain('token missing or invalid');
     });
-    test('creations fails if it is not a admin token ', async () => {
+    test('update fails if it is not a admin token ', async () => {
       const galleryItemAtStart = await galleryHelper.galleryInDb();
       const itemToUpdate = galleryItemAtStart[0];
       const newGalleryItem = {
@@ -206,13 +206,13 @@ describe('for employee api', () => {
   describe('delete a  gallery item', () => {
     test('succeeds with status code 204 if id is valid', async () => {
       const galleryItemAtStart = await galleryHelper.galleryInDb();
-      const itemToUpdate = galleryItemAtStart[0];
+      const itemToDelete = galleryItemAtStart[0];
       const token = await employeeHelper.employeeToken(
         employeeHelper.adminLogin.email,
         employeeHelper.adminLogin.password,
       );
       await api
-        .delete(`/api/gallery/${itemToUpdate.id}`)
+        .delete(`/api/gallery/${itemToDelete.id}`)
         .set('Authorization', `bearer ${token}`)
         .expect(204);
       const galleryItemAtEnd = await galleryHelper.galleryInDb();
@@ -231,19 +231,19 @@ describe('for employee api', () => {
     });
     test('fails with status code 401 if token is missing', async () => {
       const galleryItemAtStart = await galleryHelper.galleryInDb();
-      const itemToUpdate = galleryItemAtStart[0];
-      const result = await api.delete(`/api/gallery/${itemToUpdate.id}`).expect(401);
+      const itemToDelete = galleryItemAtStart[0];
+      const result = await api.delete(`/api/gallery/${itemToDelete.id}`).expect(401);
       expect(result.body.error).toContain('token missing or invalid');
     });
     test('fails with status code 403 if non authorized personal try to delete', async () => {
       const galleryItemAtStart = await galleryHelper.galleryInDb();
-      const itemToUpdate = galleryItemAtStart[0];
+      const itemToDelete = galleryItemAtStart[0];
       const token = await employeeHelper.employeeToken(
         employeeHelper.nonAdminLogin.email,
         employeeHelper.nonAdminLogin.password,
       );
       const result = await api
-        .delete(`/api/gallery/${itemToUpdate.id}`)
+        .delete(`/api/gallery/${itemToDelete.id}`)
         .set('Authorization', `bearer ${token}`)
         .expect(403);
       expect(result.body.error).toContain(`Don't have permission to delete gallery item`);
