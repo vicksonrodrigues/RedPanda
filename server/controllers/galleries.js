@@ -6,14 +6,6 @@ galleryRouter.get('/', async (request, response) => {
 
   response.json(galleryItems);
 });
-galleryRouter.get('/:groupBy', async (request, response) => {
-  const galleryItems = await Gallery.find({ groupBy: request.params.groupBy });
-
-  if (galleryItems.length === 0) {
-    return response.status(404).json({ error: 'No items found or invalid path ' });
-  }
-  return response.json(galleryItems);
-});
 
 galleryRouter.post('/', async (request, response) => {
   if (!request.employee) {

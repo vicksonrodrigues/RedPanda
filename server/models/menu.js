@@ -6,28 +6,33 @@ const customizationItemSchema = new mongoose.Schema(
   {
     itemName: { type: String },
     prices: [Number],
-    isSinglePriceActive: { type: Boolean, default: true },
+    isSinglePriceActive: { type: Boolean, default: false },
   },
   { _id: false },
 );
 
 const customizationSchema = new mongoose.Schema(
   {
-    cName: { type: String },
-    cItem: [customizationItemSchema],
+    cTypeName: { type: String },
+    cItems: [customizationItemSchema],
   },
   { _id: false },
 );
 
 const menuSchema = new mongoose.Schema(
   {
-    dishName: { type: String, required: true },
-    subMenu: { type: String, enum: ['burger', 'pizza', 'pasta', 'beverage'], required: true },
+    dishName: { type: String, required: true, immutable: true },
+    subMenu: {
+      type: String,
+      enum: ['burger', 'pizza', 'pasta', 'beverage'],
+      required: [true, 'subMenu value required'],
+      immutable: true,
+    },
     price: { type: Number, required: true },
     img: { type: String, required: true },
     description: { type: String, required: true },
-    newLaunch: { type: Boolean },
-    chefRecommended: { type: Boolean },
+    newLaunch: { type: Boolean, default: false },
+    chefRecommended: { type: Boolean, default: false },
     available: { type: Boolean, default: true },
     customization: [customizationSchema],
   },

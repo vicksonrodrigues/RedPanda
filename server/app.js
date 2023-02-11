@@ -1,17 +1,18 @@
-const express = require('express');
 require('express-async-errors');
-
-const cors = require('cors');
+const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+// configs
+const corsOptions = require('./config/corsOptions');
+const config = require('./config/configVar');
+// middleware
+const morganMiddleware = require('./middlewares/morganMiddleware');
+const { unknownEndpoint, errorHandler } = require('./middlewares/errorHandler');
+const logger = require('./middlewares/logger');
+const verifyJWT = require('./middlewares/verifyJWT');
 
-const config = require('./utils/config');
-const {
-  errorHandler,
-  tokenExtractor,
-  requestLogger,
-  unknownEndpoint,
-} = require('./utils/middleware');
-const logger = require('./utils/logger');
+// controllers
 const reviewRouter = require('./controllers/reviews');
 const eventRouter = require('./controllers/restaurantEvents');
 const galleryRouter = require('./controllers/galleries');
@@ -19,33 +20,33 @@ const customerRouter = require('./controllers/customers');
 const menuRouter = require('./controllers/menus');
 const orderRouter = require('./controllers/orders');
 const reservationRouter = require('./controllers/reservations');
-const loginRouter = require('./controllers/login');
+const authRouter = require('./controllers/auth');
 const employeeRouter = require('./controllers/employees');
 
 const app = express();
+mongoose.set('strictQuery', false);
+if (process.env.NODE_ENV === 'development') {
+  logger.info(`connecting to ${config.MONGODB_URI}`);
+}
+mongoose
+  .connect(config.MONGODB_URI)
+  .then(() => {
+    logger.info('connected to MongoDB');
+  })
+  .catch((error) => {
+    logger.error('error connecting to MongoDB:', error.message);
+  });
 
-logger.info('connecting to', config.MONGODB_URI);
-
-const connectDB = async () => {
-  await mongoose
-    .connect(config.MONGODB_URI, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    })
-    .catch((error) => {
-      logger.error('error connection to MongoDB:', error.message);
-    });
-};
-
-connectDB();
-
-app.use(cors());
+app.use(morganMiddleware);
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(requestLogger);
-app.use(tokenExtractor);
+app.use(cookieParser());
+app.use(express.static('build'));
+
+app.use(verifyJWT);
 app.use('/api/customers', customerRouter);
 app.use('/api/employees', employeeRouter);
-app.use('/api/login', loginRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/events', eventRouter);

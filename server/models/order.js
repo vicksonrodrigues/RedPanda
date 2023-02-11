@@ -16,12 +16,14 @@ const orderItemSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema(
   {
+    orderNo: { type: String },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Customer',
       required: true,
     },
     orderItems: [orderItemSchema],
+    deliveryAddress: { type: String },
     totalAmount: { type: Number, required: true },
     paymentMode: {
       type: String,

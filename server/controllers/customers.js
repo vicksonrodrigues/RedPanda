@@ -1,14 +1,23 @@
 const bcrypt = require('bcryptjs');
+
 const customerRouter = require('express').Router();
 const Customer = require('../models/customer');
+// const logger = require('../middlewares/logger');
 
-// get All customer details just for testing
+// common: @Route api/customers
+
+// @desc get all the customers
+// @access Employee only
 customerRouter.get('/', async (request, response) => {
-  if (!request.employee && !request.customerId) {
+  console.log('customer request', request.employee);
+  if (!request.employee) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
-  if (request.employee.accessLevel === 1) {
+  if (request.accessLevel === 1) {
     const customers = await Customer.find({}).populate('orders').populate('reservations');
+    if (!customers?.length) {
+      return response.status(400).json({ error: 'No customers found' });
+    }
     return response.json(customers);
   }
   return response
@@ -17,12 +26,13 @@ customerRouter.get('/', async (request, response) => {
     .end();
 });
 
-// get single customer
+// @desc get single customer
+// @access Employee and Customer
 customerRouter.get('/:id', async (request, response) => {
   let accessGranted = false;
 
   if (request.employee) {
-    if (request.employee.accessLevel === 1) {
+    if (request.accessLevel === 1) {
       accessGranted = true;
     }
   } else if (request.customerId) {
@@ -34,7 +44,9 @@ customerRouter.get('/:id', async (request, response) => {
   }
 
   if (accessGranted) {
-    const customer = await Customer.findById(request.params.id);
+    const customer = await Customer.findById(request.params.id)
+      .populate('orders')
+      .populate('reservations');
     if (customer) {
       return response.json(customer);
     }
@@ -45,9 +57,14 @@ customerRouter.get('/:id', async (request, response) => {
     .json({ error: `Don't have permission to access this customer details` })
     .end();
 });
-// for SignIn
+// @desc create a customer ( sign up)
+// @access Customer
 customerRouter.post('/', async (request, response) => {
   const { firstName, lastName, phone, email, password } = request.body;
+
+  if (!email || !password || !firstName || !phone) {
+    return response.status(400).json({ error: 'All fields are required' });
+  }
 
   const existingCustomer = await Customer.findOne({ email });
   if (existingCustomer) {
@@ -71,12 +88,13 @@ customerRouter.post('/', async (request, response) => {
   return response.status(201).json(savedCustomer);
 });
 
-// delete a customer
+// @desc delete customer
+// @access Employee
 customerRouter.delete('/:id', async (request, response) => {
   if (!request.employee) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
-  if (request.employee.accessLevel === 1) {
+  if (request.accessLevel === 1) {
     const deletedCustomer = await Customer.findByIdAndRemove(request.params.id);
     if (!deletedCustomer) {
       return response
@@ -93,9 +111,13 @@ customerRouter.delete('/:id', async (request, response) => {
     .end();
 });
 
-// update name,phoneNo
+// @desc update name,phoneNo
+// @access Customer
 customerRouter.put('/updateBasic/:id', async (request, response) => {
   const { firstName, lastName, phone } = request.body;
+  if (!firstName && !phone && !lastName) {
+    return response.status(400).json({ error: 'requires atleast one field for update ' });
+  }
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
@@ -119,10 +141,14 @@ customerRouter.put('/updateBasic/:id', async (request, response) => {
     .json({ error: `Don't have permission to modify this customer's details` })
     .end();
 });
-// add a address
 
+// @desc add a address
+// @access Customer
 customerRouter.put('/newAddress/:id', async (request, response) => {
   const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
+  if (!addressLine1 && !addressLine2 && !landmark && !city && !state && !country && !zip && !tag) {
+    return response.status(400).json({ message: 'requires atleast one field for update ' });
+  }
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
@@ -151,7 +177,8 @@ customerRouter.put('/newAddress/:id', async (request, response) => {
     .end();
 });
 
-// update address
+// @desc update a address
+// @access Customer
 customerRouter.put('/updateAddress/:id/:addressId', async (request, response) => {
   const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
   if (!request.customerId) {
@@ -199,7 +226,8 @@ customerRouter.put('/updateAddress/:id/:addressId', async (request, response) =>
     .end();
 });
 
-// delete a address
+// @desc delete a address
+// @access Customer
 customerRouter.delete('/deleteAddress/:id/:addressId', async (request, response) => {
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });
@@ -223,7 +251,8 @@ customerRouter.delete('/deleteAddress/:id/:addressId', async (request, response)
     .end();
 });
 
-// update password
+// @desc change password
+// @access Customer
 customerRouter.patch('/changePassword/:id', async (request, response) => {
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });

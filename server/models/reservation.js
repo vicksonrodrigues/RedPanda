@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const reservationSchema = new mongoose.Schema(
   {
+    reservationNo: { type: String, immutable: true },
     firstName: {
       type: String,
       required: [true, "can't be blank"],
@@ -27,13 +28,14 @@ const reservationSchema = new mongoose.Schema(
         'should match the correct format for email address',
       ],
       trim: true,
+      immutable: true,
     },
     reserveTimestamp: { type: Date, required: true },
-    guests: { type: Number, required: true },
+    guests: { type: Number, required: true, max: 5 },
     tag: {
       type: String,
-      enum: ['Cancel', 'Confirmed', 'Completed', 'No Show', 'In Progress'],
-      default: 'In Progress',
+      enum: ['Received', 'Confirmed', 'Completed', 'No Show', 'No Seats'],
+      default: 'Received',
     },
     specialRequest: { type: String },
     customerId: {

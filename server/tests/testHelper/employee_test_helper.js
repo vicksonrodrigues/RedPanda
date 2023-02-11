@@ -24,6 +24,16 @@ const sampleEmployee = [
     accessLevel: 2,
     password: '123456789abc',
   },
+  {
+    firstName: 'lowLevelFirst',
+    lastName: 'lowLevelLast',
+    email: 'lowLevel@gmail.com',
+    phone: '9657432158',
+    department: 'kitchen',
+    position: 'janitor',
+    accessLevel: 3,
+    password: '123456789mon',
+  },
 ];
 
 const adminLogin = {
@@ -33,6 +43,11 @@ const adminLogin = {
 const nonAdminLogin = {
   email: 'adminSecond@gmail.com',
   password: '123456789abc',
+};
+
+const lowLevelLogin = {
+  email: 'lowLevel@gmail.com',
+  password: '123456789mon',
 };
 
 const initalEmployee = async (employees) => {
@@ -101,4 +116,5 @@ module.exports = {
   nonExistingId,
   adminLogin,
   nonAdminLogin,
+  lowLevelLogin,
 };

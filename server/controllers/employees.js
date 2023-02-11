@@ -3,16 +3,19 @@ const employeeRouter = require('express').Router();
 const Employee = require('../models/employee');
 
 employeeRouter.get('/', async (request, response) => {
+  if (!request.employee) {
+    return response.status(401).json({ error: 'token missing or invalid' });
+  }
   const employees = await Employee.find({});
 
-  response.json(employees);
+  return response.json(employees);
 });
 
 employeeRouter.get('/:id', async (request, response) => {
   if (!request.employee) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
-  if (request.employee.id === request.params.id || request.employee.accessLevel === 1) {
+  if (request.employee.id === request.params.id || request.accessLevel === 1) {
     const employee = await Employee.findById(request.params.id);
     if (employee) {
       return response.json(employee);
@@ -38,7 +41,7 @@ employeeRouter.post('/', async (request, response) => {
       error: `employee's email must be unique`,
     });
   }
-  if (request.employee.accessLevel === 1) {
+  if (request.accessLevel === 1) {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const employee = new Employee({
@@ -64,7 +67,7 @@ employeeRouter.put('/:id', async (request, response) => {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
 
-  if (request.employee.accessLevel === 1) {
+  if (request.accessLevel === 1) {
     const modifiedEmployee = {
       phone,
       department,
@@ -97,7 +100,7 @@ employeeRouter.patch('/:id', async (request, response) => {
   if (employee.id !== request.params.id) {
     return response.status(400).json({ error: 'Email doesnot match with user' });
   }
-  if (request.employee.accessLevel === 1 && email) {
+  if (request.accessLevel === 1 && email) {
     const saltRounds = 10;
     const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
     employee.passwordHash = newPasswordHash;
@@ -115,7 +118,7 @@ employeeRouter.delete('/:id', async (request, response) => {
   if (!request.employee) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
-  if (request.employee.accessLevel === 1) {
+  if (request.accessLevel === 1) {
     const deletedEmployee = await Employee.findByIdAndRemove(request.params.id);
     if (!deletedEmployee) {
       return response.status(404).end();

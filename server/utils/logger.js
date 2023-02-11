@@ -1,3 +1,5 @@
+// setup the logger
+
 const info = (...params) => {
   console.log(...params);
 };

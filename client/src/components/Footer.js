@@ -1,13 +1,11 @@
-import { Box, Typography, Container, Grid, IconButton, Stack, Button } from '@mui/material';
+import { Box, Typography, Container, Grid, Stack, Button } from '@mui/material';
 import React from 'react';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
 
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import { Link } from 'react-router-dom';
+import SocialButtons from './Social';
 
 const siteLinks = [
   {
@@ -68,17 +66,7 @@ const Footer = () => (
               <Typography variant="subtitle2" color="text.primary">
                 On Social Media :
               </Typography>
-              <Box>
-                <IconButton>
-                  <FacebookIcon fontSize="small" />
-                </IconButton>
-                <IconButton>
-                  <InstagramIcon fontSize="small" />
-                </IconButton>
-                <IconButton>
-                  <TwitterIcon fontSize="small" />
-                </IconButton>
-              </Box>
+              <SocialButtons />
             </Box>
           </Box>
         </Grid>
@@ -93,15 +81,6 @@ const Footer = () => (
             <LocationIcon />
             <Typography variant="caption" sx={{ marginLeft: 2 }}>
               Shop 11-12, Raymond Yard, Sec-10, Kharghar, Navi Mumbai
-            </Typography>
-          </Box>
-          <Typography variant="overline" mt={5} fontWeight="medium">
-            Vashi Branch:
-          </Typography>
-          <Box display="flex" my={1} alignItems="center">
-            <LocationIcon />
-            <Typography variant="caption" sx={{ marginLeft: 2 }}>
-              G-Floor, InOrbit Mall, Sec-10, Vashi, Navi Mumbai
             </Typography>
           </Box>
         </Grid>
