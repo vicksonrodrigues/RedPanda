@@ -1,5 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import { apiSlice } from '../../app/api';
+import { setNotification } from '../notification/notificationSlice';
 import { logout, setCredentials } from './authSlice';
 
 export const authApiSlice = apiSlice.injectEndpoints({
@@ -18,14 +19,19 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
-          console.log(data);
+          await queryFulfilled;
           dispatch(logout());
           setTimeout(() => {
             dispatch(apiSlice.util.resetApiState());
           }, 1000);
         } catch (err) {
-          console.log(err);
+          dispatch(
+            setNotification({
+              notificationMessage: 'Logout error. Please try again later.',
+              notificationType: 'error',
+              notificationOpen: true,
+            }),
+          );
         }
       },
     }),
@@ -37,11 +43,10 @@ export const authApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log(data);
           const { accessToken } = data;
           dispatch(setCredentials({ accessToken }));
-        } catch (err) {
-          console.log(err);
+        } catch {
+          console.log('Error in refresh');
         }
       },
     }),

@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Container } from '@mui/material';
 import React from 'react';
 import NewsAndEvents from './NewsAndEvents';
 import HomeMenu from './HomeMenu';
@@ -10,13 +10,13 @@ import useTitle from '../../hooks/useTitle';
 const Home = () => {
   useTitle('RedPanda');
   return (
-    <Box>
+    <Container maxWidth="lg">
       <Welcome />
       <HomeMenu />
       <Recommend />
       <ReviewList />
       <NewsAndEvents />
-    </Box>
+    </Container>
   );
 };
 export default Home;

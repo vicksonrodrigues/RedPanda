@@ -3,15 +3,10 @@
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
-  itemName: { type: String, required: true },
+  dishName: { type: String, required: true },
   price: { type: Number, required: true },
   quantity: { type: Number, required: true, default: 1 },
-  customization: [
-    {
-      cName: { type: String },
-    },
-    { _id: false },
-  ],
+  totalCost: { type: Number, required: true },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -24,7 +19,10 @@ const orderSchema = new mongoose.Schema(
     },
     orderItems: [orderItemSchema],
     deliveryAddress: { type: String },
-    totalAmount: { type: Number, required: true },
+    subTotal: { type: Number, required: true },
+    taxCost: { type: Number, required: true },
+    deliveryCost: { type: Number, required: true },
+    totalCost: { type: Number, required: true },
     paymentMode: {
       type: String,
       enum: ['Online', 'Cash'],

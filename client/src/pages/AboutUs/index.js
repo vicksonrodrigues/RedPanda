@@ -6,7 +6,7 @@ import ContactUs from './ContactUs';
 import Counter from './Counter';
 import WelcomeScreen from './WelcomeScreen';
 
-const About = () => {
+const AboutUs = () => {
   useTitle('RedPanda - About Us');
   return (
     <PageHeader pageName="About Us ">
@@ -18,4 +18,4 @@ const About = () => {
   );
 };
 
-export default About;
+export default AboutUs;

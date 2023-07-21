@@ -11,9 +11,7 @@ const errorHandler = (err, request, response, next) => {
 
   const status = response.statusCode ? response.statusCode : 500; // server error
 
-  response.status(status);
-
-  response.json({ message: err.message, isError: true });
+  response.status(status).json({ error: err.message });
 
   next(err);
 };

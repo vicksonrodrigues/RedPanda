@@ -1,20 +1,23 @@
 import { Box, Typography, Paper, Button, Stack, TextField } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import ProfileSubHeader from '../../components/ProfileSubHeader';
-import customerService from '../../services/customers';
-import { currentCustomer } from '../../reducers/customer';
+import { useUpdateBasicDetailsMutation } from '../../features/customer/customerApiSlice';
+import { setNotification } from '../../features/notification/notificationSlice';
 
-const Details = ({ tabValue, index }) => {
-  const customer = useSelector((state) => state.customer);
+const Details = ({ value, index, customerAuth, customerDetails }) => {
   const dispatch = useDispatch();
-  const customerId = customer?.id;
+
+  const [updateDetails, { isLoading, isSuccess, isError, error }] = useUpdateBasicDetailsMutation();
+  const customerId = customerAuth?.id;
+
   // eslint-disable-next-line no-unused-vars
   const [editDisable, setEditDisable] = useState(true);
-  const [firstName, setFirstName] = useState(customer?.firstName);
-  const [lastName, setLastName] = useState(customer?.lastName);
-  const [phone, setPhone] = useState(customer?.phone);
+  const [firstName, setFirstName] = useState(customerDetails?.firstName);
+  const [lastName, setLastName] = useState(customerDetails?.lastName);
+  const [phone, setPhone] = useState(customerDetails?.phone);
+
   const handleFirstName = (event) => {
     setFirstName(event.target.value);
   };
@@ -33,34 +36,56 @@ const Details = ({ tabValue, index }) => {
 
   const handleCancel = () => {
     if (editDisable === false) {
-      setFirstName(customer.firstName);
-      setLastName(customer.lastName);
-      setPhone(customer.phone);
+      setFirstName(customerDetails?.firstName);
+      setLastName(customerDetails?.lastName);
+      setPhone(customerDetails?.phone);
       setEditDisable(!editDisable);
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    customerService
-      .updateBasic(customerId, {
-        firstName,
-        lastName,
-        phone,
-      })
-      .then((customer) => {
-        dispatch(currentCustomer(customer));
-        setFirstName(customer.firstName);
-        setLastName(customer.lastName);
-        setPhone(customer.phone);
-        setEditDisable(!editDisable);
-      });
+  const notify = (notificationMessage, notificationType, notificationOpen = true) => {
+    dispatch(
+      setNotification({
+        notificationOpen,
+        notificationType,
+        notificationMessage,
+      }),
+    );
   };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      if (!isLoading) {
+        const details = { firstName, lastName, phone };
+        await updateDetails({
+          id: customerId,
+          updateCustomer: details,
+        }).unwrap();
+      }
+    } catch (err) {
+      notify(`${err.data?.error}`, 'error');
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      notify('Update Successful', 'success');
+      setEditDisable(true);
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (isError) {
+      handleCancel();
+      notify(`${error?.data?.message}`, 'error');
+    }
+  }, [isError]);
+
   return (
-    <div role="tabpanel" hidden={tabValue !== index} id={`simple-tabpanel-${index}`}>
-      {tabValue === index && (
-        <ProfileSubHeader>
+    <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`}>
+      {value === index && (
+        <ProfileSubHeader title="Your Details">
           <Box
             display="flex"
             borderBottom={1}
@@ -87,8 +112,9 @@ const Details = ({ tabValue, index }) => {
               <Typography variant="subtitle2">Edit Information</Typography>
             </Box>
           )}
+
           <form onSubmit={handleSubmit}>
-            <Box component={Paper} elevation={3} p={3} sx={{ width: '80%' }}>
+            <Box component={Paper} elevation={3} p={3}>
               <Stack direction="row" spacing={2} alignItems="center">
                 <Typography width={120} fontWeight="bolder" sx={{ color: 'secondary.light' }}>
                   Name:
@@ -160,7 +186,7 @@ const Details = ({ tabValue, index }) => {
                   E-Mail:
                 </Typography>
                 <Typography color="text.disabled" px={2}>
-                  {customer?.email}
+                  {customerDetails?.email}
                 </Typography>
               </Stack>
             </Box>

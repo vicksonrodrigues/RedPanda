@@ -51,7 +51,7 @@ export const getDesignTokens = (mode) => ({
           },
           text: {
             primary: '#fff',
-            secondary: 'gba(255, 255, 255, 0.7)',
+            secondary: 'rgba(255, 255, 255, 0.7)',
             disabled: 'rgba(255, 255, 255, 0.5)',
             hint: 'rgba(255, 255, 255, 0.5)',
           },

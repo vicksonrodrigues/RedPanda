@@ -1,5 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 // openlayers
 import Map from 'ol/Map';
@@ -17,17 +17,14 @@ import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 
 function MapWrapper({ locationData, currentLocation }) {
-  // initial state
-  const [map, setMap] = useState();
-  // pull refs
-  const mapElement = useRef();
+  /// store the location where the map want to display
+  const mapElement = useRef(null);
   // create state ref that can be accessed in OpenLayers onclick callback function
-  const mapRef = useRef();
-  mapRef.current = map;
+  const mapRef = useRef(null);
 
   // initialize map on first render
   useEffect(() => {
-    if (map == null) {
+    if (mapElement.current && !mapRef.current) {
       const AllLocation = locationData.map((loc) => {
         const feature = new Feature({
           geometry: new Point(fromLonLat(loc.location)),
@@ -76,15 +73,16 @@ function MapWrapper({ locationData, currentLocation }) {
           maxZoom: 18,
         }),
       });
-      setMap(initialMap);
+      // setMap(initialMap);
+      mapRef.current = initialMap;
     }
   }, []);
 
   // update map if features prop changes
   useEffect(() => {
-    if (map != null) {
+    if (mapRef.current) {
       const currentLoc = locationData.filter((loc) => loc.name === currentLocation);
-      map.setView(
+      mapRef.current.setView(
         new View({
           center: fromLonLat(currentLoc[0].location),
           zoom: 16,

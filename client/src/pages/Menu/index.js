@@ -1,47 +1,55 @@
-import { /* Button, */ Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import SubMenu from './SubMenu';
 import Burger from '../../assests/MenuImage/burger03.png';
 import Pizza from '../../assests/MenuImage/pizza01.png';
 import Pasta from '../../assests/MenuImage/pasta02.png';
-import Shakes from '../../assests/MenuImage/shakes01.png';
+import Beverage from '../../assests/MenuImage/shakes01.png';
 import PageHeader from '../../components/PageHeader';
 import useTitle from '../../hooks/useTitle';
 
 const subMenu = [
   {
-    name: 'burgers',
+    name: 'burger',
     title: 'Burger',
     img: Burger,
   },
   {
-    name: 'pizzas',
+    name: 'pizza',
     title: 'Pizza',
     img: Pizza,
   },
   {
-    name: 'pastas',
+    name: 'pasta',
     title: 'Pasta',
     img: Pasta,
   },
   {
-    name: 'shakes',
-    title: 'Shake',
-    img: Shakes,
+    name: 'beverage',
+    title: 'Beverage',
+    img: Beverage,
   },
 ];
 
-const Menu = () => {
+const MenuPage = () => {
   useTitle('RedPanda - Menu');
-  const { id } = useParams();
-  const initialStep = id || 'burgers';
 
-  const [activeStep, setActiveStep] = React.useState(initialStep);
+  const { state } = useLocation();
+  const initialState = state !== null ? state : 'burger';
+  const [activeStep, setActiveStep] = React.useState(initialState);
 
   return (
     <PageHeader pageName="Our Menu">
-      <Grid container sx={{ p: 2 }} width="1" wrap="nowrap" spacing={1}>
+      <Grid
+        container
+        direction={{ xs: 'coulmn', md: 'row' }}
+        width={1}
+        height={1}
+        alignItems="stretch"
+        justifyContent="space-evenly"
+        p={2}
+      >
         {subMenu.map((menuItem, index) => (
           <SubMenu
             key={menuItem.name}
@@ -57,4 +65,4 @@ const Menu = () => {
   );
 };
 
-export default Menu;
+export default MenuPage;

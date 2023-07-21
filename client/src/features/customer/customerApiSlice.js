@@ -1,23 +1,12 @@
 import { apiSlice } from '../../app/api';
-import { store } from '../../app/store';
-
-// eslint-disable-next-line consistent-return
-const config = () => {
-  const { token } = store.getState().auth;
-  if (token) {
-    return {
-      Authorization: `Bearer ${token}`,
-    };
-  }
-};
 
 export const customerApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getCustomer: builder.query({
       query: (id) => ({
         url: `/customers/${id}`,
-        headers: config(),
       }),
+      providesTags: ['Customer'],
     }),
     addNewCustomer: builder.mutation({
       query: (newCustomer) => ({
@@ -30,40 +19,40 @@ export const customerApiSlice = apiSlice.injectEndpoints({
       query: ({ id, updateCustomer }) => ({
         url: `/customers/updateBasic/${id}`,
         method: 'PUT',
-        headers: config(),
         body: updateCustomer,
       }),
+      invalidatesTags: ['Customer'],
     }),
     addNewAddress: builder.mutation({
       query: ({ id, newAddress }) => ({
         url: `/customers/newAddress/${id}`,
         method: 'PUT',
-        headers: config(),
         body: newAddress,
       }),
+      invalidatesTags: ['Customer'],
     }),
     updateExistingAddress: builder.mutation({
       query: ({ id, addressId, updateAddress }) => ({
         url: `/customers/updateAddress/${id}/${addressId}`,
         method: 'PUT',
-        headers: config(),
         body: updateAddress,
       }),
+      invalidatesTags: ['Customer'],
     }),
     deleteAddress: builder.mutation({
-      query: ({ id }) => ({
-        url: `/customers/${id}`,
+      query: ({ id, addressId }) => ({
+        url: `/customers/deleteAddress/${id}/${addressId}`,
         method: 'DELETE',
-        headers: config(),
       }),
+      invalidatesTags: ['Customer'],
     }),
     updatePassword: builder.mutation({
       query: ({ id, updatePassword }) => ({
         url: `/customers/changePassword/${id}`,
         method: 'PATCH',
-        headers: config(),
         body: updatePassword,
       }),
+      invalidatesTags: ['Customer'],
     }),
   }),
 });

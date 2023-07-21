@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { createTheme, CssBaseline, responsiveFontSizes, ThemeProvider } from '@mui/material';
 import React, { createContext, useContext, useMemo, useState } from 'react';
 import { getDesignTokens } from '../theme';
 
@@ -8,8 +8,8 @@ const ThemeUpdateContext = createContext({ toggleColorMode: () => {} });
 export const ThemeToggle = ({ children }) => {
   const [mode, setMode] = useState('light');
 
-  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-
+  let theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  theme = responsiveFontSizes(theme);
   const colorMode = React.useMemo(
     () => ({
       toggleColorMode: () => {

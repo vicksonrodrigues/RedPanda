@@ -16,8 +16,9 @@ import ChangePassword from './ChangePassword';
 import OrderHistory from './OrderHistory';
 import Bookings from './Bookings';
 import PageHeader from '../../components/PageHeader';
-// import { useGetCustomerQuery } from '../../features/customer/customerApiSlice';
 import useTitle from '../../hooks/useTitle';
+import useAuth from '../../hooks/useAuth';
+import { useGetCustomerQuery } from '../../features/customer/customerApiSlice';
 
 const CustomTab = ({ value, handleListItemClick, tabNo, tabName }) => (
   <ListItemButton
@@ -37,16 +38,18 @@ const CustomTab = ({ value, handleListItemClick, tabNo, tabName }) => (
 
 const Profile = () => {
   useTitle('RedPanda - Profile');
-  // eslint-disable-next-line no-unused-vars
-  /* const { data: currentCustomer, isLoading, isSuccess, isError, error } = useGetCustomerQuery();
-  console.log('Customer', currentCustomer); */
 
-  // eslint-disable-next-line no-unused-vars
+  const customer = useAuth();
+  const { data: customerDetails } = useGetCustomerQuery(customer?.id, {
+    skip: !customer,
+  });
+
   const [value, setValue] = React.useState(1);
 
   const handleListItemClick = (event, newValue) => {
     setValue(newValue);
   };
+  if (!customer) return <div>Loading....</div>;
   return (
     <PageHeader pageName="Profile">
       <Box m={1}>
@@ -103,7 +106,7 @@ const Profile = () => {
                       value={value}
                       handleListItemClick={handleListItemClick}
                       tabNo={3}
-                      tabName="Order Histroy"
+                      tabName="Your Orders"
                     />
                     <Divider />
                     <CustomTab
@@ -141,12 +144,19 @@ const Profile = () => {
               </Box>
             </Box>
           </Grid>
-          <Grid item xs={8}>
-            <Details tabValue={value} index={1} />
-            <ChangePassword value={value} index={2} />
-            <OrderHistory value={value} index={3} />
-            <Addresses value={value} index={4} />
-            <Bookings value={value} index={5} />
+          <Grid item xs={9}>
+            {customerDetails && (
+              <Details
+                value={value}
+                index={1}
+                customerAuth={customer}
+                customerDetails={customerDetails}
+              />
+            )}
+            <ChangePassword value={value} index={2} customerAuth={customer} />
+            <OrderHistory value={value} index={3} customerAuth={customer} />
+            <Addresses value={value} index={4} customerAuth={customer} />
+            <Bookings value={value} index={5} customerAuth={customer} />
           </Grid>
         </Grid>
       </Box>

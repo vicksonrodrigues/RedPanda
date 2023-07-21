@@ -10,7 +10,6 @@ const config = require('./config/configVar');
 const morganMiddleware = require('./middlewares/morganMiddleware');
 const { unknownEndpoint, errorHandler } = require('./middlewares/errorHandler');
 const logger = require('./middlewares/logger');
-const verifyJWT = require('./middlewares/verifyJWT');
 
 // controllers
 const reviewRouter = require('./controllers/reviews');
@@ -22,6 +21,7 @@ const orderRouter = require('./controllers/orders');
 const reservationRouter = require('./controllers/reservations');
 const authRouter = require('./controllers/auth');
 const employeeRouter = require('./controllers/employees');
+const verifyJWT = require('./middlewares/verifyJWT');
 
 const app = express();
 mongoose.set('strictQuery', false);
@@ -42,7 +42,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('build'));
-
 app.use(verifyJWT);
 app.use('/api/customers', customerRouter);
 app.use('/api/employees', employeeRouter);

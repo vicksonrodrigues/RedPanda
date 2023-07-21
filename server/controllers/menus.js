@@ -18,16 +18,16 @@ menuRouter.get('/subMenu/:id', async (request, response) => {
 
 // add a new menu item
 menuRouter.post('/', async (request, response) => {
-  if (!request.employee) {
+  /* if (!request.employee) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
-  if (request.employee.accessLevel === 1) {
-    const newMenu = new Menu(request.body);
+  if (request.employee.accessLevel === 1) { */
+  const newMenu = new Menu(request.body);
 
-    const savedMenu = await newMenu.save();
-    return response.status(201).json(savedMenu);
-  }
-  return response.status(403).json({ error: `Don't have permission to add a new menu item` }).end();
+  const savedMenu = await newMenu.save();
+  return response.status(201).json(savedMenu);
+  /* }
+  return response.status(403).json({ error: `Don't have permission to add a new menu item` }).end(); */
 });
 
 // delete a menu item

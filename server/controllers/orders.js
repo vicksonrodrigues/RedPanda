@@ -1,7 +1,11 @@
 /* eslint-disable no-underscore-dangle */
 const orderRouter = require('express').Router();
+const { customAlphabet } = require('nanoid');
 const Customer = require('../models/customer');
 const Order = require('../models/order');
+
+const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+const nanoid = customAlphabet(alphabet, 12);
 
 // @desc get all orders
 // @access Employee only
@@ -12,6 +16,13 @@ orderRouter.get('/', async (request, response) => {
   const orders = await Order.find({});
 
   return response.json(orders);
+});
+
+orderRouter.get('/orderLength', async (request, response) => {
+  const order = await Order.find({});
+
+  const orderLength = order?.length;
+  return response.json(orderLength);
 });
 
 // @desc get single order details
@@ -27,17 +38,32 @@ orderRouter.get('/:id', async (request, response) => {
 // @desc create a order
 // @access Customer only
 orderRouter.post('/', async (request, response) => {
-  const { customerId, totalAmount, paymentMode, orderStatus, orderItems, specialNote } =
-    request.body;
+  const {
+    customerId,
+    orderItems,
+    deliveryAddress,
+    subTotal,
+    taxCost,
+    deliveryCost,
+    totalCost,
+    paymentMode,
+    orderStatus,
+    specialNote,
+  } = request.body;
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
   const customer = await Customer.findById(customerId);
 
   const order = new Order({
+    orderNo: nanoid(),
     customer: customer._id,
     orderItems,
-    totalAmount,
+    deliveryAddress,
+    subTotal,
+    taxCost,
+    deliveryCost,
+    totalCost,
     paymentMode,
     orderStatus,
     specialNote,

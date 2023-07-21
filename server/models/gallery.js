@@ -11,6 +11,7 @@ const gallerySchema = new mongoose.Schema(
       enum: { values: ['ambience', 'events', 'foods'], message: '{VALUE} is not supported' },
       required: [true, 'groupBy value required'],
     },
+    author: { type: String },
   },
   { timestamps: true },
 );

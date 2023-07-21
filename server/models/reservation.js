@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 
 const reservationSchema = new mongoose.Schema(
   {
-    reservationNo: { type: String, immutable: true },
     firstName: {
       type: String,
       required: [true, "can't be blank"],
@@ -31,10 +30,10 @@ const reservationSchema = new mongoose.Schema(
       immutable: true,
     },
     reserveTimestamp: { type: Date, required: true },
-    guests: { type: Number, required: true, max: 5 },
+    guests: { type: Number, required: true, max: 8 },
     tag: {
       type: String,
-      enum: ['Received', 'Confirmed', 'Completed', 'No Show', 'No Seats'],
+      enum: ['Received', 'Confirmed', 'Completed', 'Cancelled'],
       default: 'Received',
     },
     specialRequest: { type: String },

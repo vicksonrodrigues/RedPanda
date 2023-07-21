@@ -4,23 +4,74 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogTitle,
   IconButton,
   Typography,
-  Paper,
+  // Paper,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
-import CustomizationPanel from '../pages/Menu/CustomizationPanel';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import CloseIcon from '@mui/icons-material/Close';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import { useDispatch, useSelector } from 'react-redux';
+// import CustomizePanel from './CustomizePanel';
+import { addItem, removeItem } from '../features/cart/cartSlice';
+import { useGetMenuQuery } from '../features/menu/menuApiSlice';
+import ItemQuantityButtons from './ItemQuantityButtons';
+import { setNotification } from '../features/notification/notificationSlice';
 
-const ItemDialog = ({ item, quantity, setQuantity, open, handleClose }) => {
-  const [disabled, setDisabled] = useState(true);
+const ItemDialog = ({ id, open, handleClose }) => {
+  const { menuItem } = useGetMenuQuery('menuList', {
+    selectFromResult: ({ data }) => ({
+      menuItem: data?.find((items) => items.id === id),
+    }),
+  }); // find item details
+  const dispatch = useDispatch();
+  const notify = (notificationMessage, notificationType, notificationOpen = true) => {
+    dispatch(
+      setNotification({
+        notificationOpen,
+        notificationType,
+        notificationMessage,
+      }),
+    );
+  };
+  // find if the item is in global state
+  const itemInCart = useSelector((state) => state.cart?.filter((item) => item.id === menuItem?.id));
+
+  // used for setting the local quantity according to global state or 1
+  const initialQuantity = itemInCart[0] ? itemInCart[0].quantity : 1;
+  const [disabled, setDisabled] = useState(!itemInCart[0]);
+  const [quantity, setQuantity] = React.useState(initialQuantity);
+  const [openAlert, setOpenAlert] = React.useState(false);
+
+  useEffect(() => {
+    if (!itemInCart[0]) {
+      setDisabled(true);
+    }
+    setQuantity(initialQuantity);
+  }, [handleClose]);
+
+  const handleAlertClose = () => {
+    setOpenAlert(false);
+  };
+  const handleDeleteItem = () => {
+    dispatch(removeItem({ id: menuItem.id }));
+    setDisabled(true);
+    setQuantity(1);
+    handleAlertClose();
+    handleClose();
+  };
 
   const handleRemove = () => {
-    if (quantity > 0) {
+    if (itemInCart?.length > 0 && quantity === 1) {
+      setOpenAlert(true);
+    }
+    if (quantity > 1) {
       setQuantity((prevActiveStep) => prevActiveStep - 1);
-      if (quantity === 1) {
+      if (itemInCart?.length === 0 && quantity === 2) {
         setDisabled(true);
       }
     }
@@ -28,10 +79,30 @@ const ItemDialog = ({ item, quantity, setQuantity, open, handleClose }) => {
   const handleAdd = () => {
     if (quantity >= 0) {
       setQuantity((prevActiveStep) => prevActiveStep + 1);
-      if (quantity === 0) {
+      if (quantity === 1) {
         setDisabled(false);
       }
     }
+  };
+
+  const handleBuy = (event) => {
+    event.preventDefault();
+    if (itemInCart.length === 0) {
+      const itemDetails = {
+        id: menuItem.id,
+        dishName: menuItem.dishName,
+        price: menuItem.price,
+        img: menuItem.img,
+        quantity,
+        totalCost: Number(menuItem.price * quantity).toFixed(2),
+      };
+      dispatch(addItem(itemDetails));
+      notify(`${menuItem.dishName} added to cart`, 'success');
+      if (quantity === 1) {
+        setDisabled(false);
+      }
+    }
+    handleClose();
   };
 
   return (
@@ -39,13 +110,15 @@ const ItemDialog = ({ item, quantity, setQuantity, open, handleClose }) => {
       <DialogContent
         sx={{
           display: 'flex',
-          m: 2,
+
+          p: 3,
           '&::-webkit-scrollbar': {
             width: '12px',
           },
           '&::-webkit-scrollbar-track': {
             backgroundColor: 'secondary.main',
             borderRadius: '20px',
+            my: '45px',
           },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: 'neutral.main',
@@ -55,64 +128,120 @@ const ItemDialog = ({ item, quantity, setQuantity, open, handleClose }) => {
           },
         }}
       >
+        {/* Image in Dialog box */}
         <Box
           component="img"
-          src={item.img}
-          alt={item.dishName}
+          src={menuItem?.img}
+          alt={menuItem?.dishName}
           sx={{
             width: '50%',
             display: 'flex',
-            objectFit: 'cover',
+            objectFit: 'contain',
             alignContent: 'center',
           }}
         />
+        {/* Side Bar */}
         <Box
           sx={{ width: '50%', mx: 3, p: 3 }}
           display="flex"
           flexDirection="column"
           justifyContent="space-between"
         >
+          {/* Cancel Button */}
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {/* Item Details and Customization */}
           <Box width={1}>
-            <Typography variant="h4" textAlign="center">
-              {item.dishName}
+            <Typography variant="h4" textAlign="center" color="secondary.light">
+              {menuItem?.dishName}
             </Typography>
-            <Typography py={3} sx={{ textAlignLast: 'center' }}>
-              {item.description}
+            <Typography py={3} sx={{ textAlign: 'left' }}>
+              {menuItem?.description}
             </Typography>
-            <CustomizationPanel customization={item.customization} />
+            <Typography py={3} sx={{ textAlignLast: 'left', textAlign: 'center' }}>
+              Price: <CurrencyRupeeIcon fontSize="small" />
+              {menuItem?.price}
+            </Typography>
+            {/* <CustomizePanel customization={singleItem.customization} />
             <Box component={Paper} height={70} p={1}>
               <Typography>Burger + sides</Typography>
-            </Box>
+            </Box> */}
           </Box>
+          {/* Item Quantity ,total Cost and Action Button */}
           <Box>
             <Typography borderTop={1} textAlign="end" p={1}>
-              Total - $ {item.price}
+              Total - <CurrencyRupeeIcon fontSize="small" />
+              {(menuItem ? menuItem.price * quantity : 0).toFixed(2)}
             </Typography>
-            <DialogActions>
-              <Button size="large" onClick={handleAdd} variant="contained" fullWidth>
-                Add to Cart
-              </Button>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  width: 1,
-                }}
-              >
-                <IconButton aria-label="add" onClick={handleAdd}>
-                  <AddCircleOutlineOutlinedIcon />
-                </IconButton>
-                <Typography>{quantity}</Typography>
-
-                <IconButton disabled={disabled} aria-label="remove" onClick={handleRemove}>
-                  <RemoveCircleOutlineOutlinedIcon />
-                </IconButton>
-              </Box>
+            <DialogActions sx={{ display: 'flex' }}>
+              {!itemInCart[0] ? (
+                <>
+                  <Button size="large" onClick={handleBuy} variant="contained">
+                    Add to Cart
+                  </Button>
+                  <Box
+                    sx={{
+                      width: '120px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      borderRadius: 5,
+                      justifyContent: 'space-between',
+                      bgcolor: 'secondary.main',
+                      ml: '16px',
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'white' }}
+                      disabled={disabled}
+                      onClick={handleRemove}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography variant="button">{quantity}</Typography>
+                    <IconButton
+                      size="small"
+                      sx={{ color: 'white' }}
+                      onClick={handleAdd}
+                      color="secondary"
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
+                </>
+              ) : (
+                <ItemQuantityButtons initialQuantity={initialQuantity} menuItem={menuItem} />
+              )}
             </DialogActions>
           </Box>
         </Box>
       </DialogContent>
+      <Dialog
+        open={openAlert}
+        onClose={handleAlertClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Remove the {menuItem?.dishName} from cart ?
+        </DialogTitle>
+        <DialogActions>
+          <Button onClick={handleAlertClose}>Disagree</Button>
+          <Button onClick={handleDeleteItem} autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

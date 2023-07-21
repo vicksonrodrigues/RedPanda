@@ -4,7 +4,6 @@ import MuiAlert from '@mui/material/Alert';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setNotification } from '../features/notification/notificationSlice';
-// import { selectCurrentNotification } from '../app/features/notification/notificationSlice';
 
 const Alert = React.forwardRef((props, ref) => (
   <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
@@ -24,7 +23,7 @@ const NotificationBar = () => {
   };
   return (
     <Box>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={snackbarOpen} autoHideDuration={10000} onClose={handleClose}>
         <Alert onClose={handleClose} severity={snackbarType} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>

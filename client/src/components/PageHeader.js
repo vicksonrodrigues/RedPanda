@@ -1,23 +1,32 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 
 const PageHeader = ({ children, pageName }) => (
-  <Box height="auto">
+  <Container
+    maxWidth="xl"
+    sx={{
+      height: '100%',
+      my: '16px',
+      px: '32px',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    }}
+  >
     <Box
-      display="flex"
-      justifyContent="center"
+      width="100%"
       p={2}
       border={5}
       bgcolor="neutral.main"
-      m={2}
       sx={{ borderColor: 'secondary.main' }}
+      mb={3}
     >
-      <Typography variant="h4" color="secondary.light" fontWeight="bolder">
+      <Typography variant="h4" color="secondary.light" fontWeight="bolder" textAlign="center">
         {pageName}
       </Typography>
     </Box>
     {children}
-  </Box>
+  </Container>
 );
 
 export default PageHeader;

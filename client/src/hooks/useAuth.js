@@ -10,8 +10,7 @@ const useAuth = () => {
 
     return { email, id };
   }
-  console.log('No token available');
-  return { email: '', id: '' };
+  return null;
 };
 
 export default useAuth;

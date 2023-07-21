@@ -5,9 +5,6 @@ const addressSchema = new mongoose.Schema({
   addressLine1: { type: String, required: true },
   addressLine2: { type: String },
   landmark: { type: String },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, default: 'India' },
   zip: { type: String, match: [/^[1-9][0-9]{5}$/], required: true, maxLength: 6, minLength: 6 },
   tag: { type: String, required: true },
 });

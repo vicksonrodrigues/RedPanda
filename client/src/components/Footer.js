@@ -35,7 +35,7 @@ const siteLinks = [
 ];
 
 const Footer = () => (
-  <Box display="flex" bgcolor="primary.light" py={2}>
+  <Box display={{ xs: 'none', sm: 'flex' }} bgcolor="primary.light" py={2}>
     <Container disableGutters>
       <Grid
         container

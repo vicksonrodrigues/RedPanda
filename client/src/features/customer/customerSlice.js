@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import customerService from '';
 
 const slice = createSlice({
   name: 'customer',
@@ -12,9 +11,3 @@ const slice = createSlice({
 });
 export const { initializeWith } = slice.actions;
 export default slice.reducer;
-
-export const currentCustomer = (id) => async (dispatch) => {
-  customerService.getCustomer(id).then((customer) => {
-    dispatch(initializeWith(customer));
-  });
-};

@@ -27,6 +27,13 @@ reservationRouter.get('/', async (request, response) => {
     .json({ error: `Don't have permission to access reservation details` })
     .end();
 });
+// @desc get number of reservation
+// @access Public
+reservationRouter.get('/reservationLength', async (request, response) => {
+  const reservations = await Reservation.find({});
+  const reservationLength = reservations?.length;
+  return response.json(reservationLength);
+});
 // @desc get all the reservation based on date
 // @access Employee only
 reservationRouter.get('/date/:selectedDate', async (request, response) => {
@@ -61,9 +68,6 @@ reservationRouter.get('/date/:selectedDate', async (request, response) => {
 // @desc create a reservation
 // @access Customer and Employee
 reservationRouter.post('/', async (request, response) => {
-  if (!request.customerId || !request.employee) {
-    return response.status(401).json({ error: 'token missing or invalid' });
-  }
   const {
     firstName,
     lastName,
@@ -71,7 +75,6 @@ reservationRouter.post('/', async (request, response) => {
     email,
     reserveTimestamp,
     guests,
-    tag,
     specialRequest,
     customerId,
   } = request.body;
@@ -82,7 +85,6 @@ reservationRouter.post('/', async (request, response) => {
     email,
     reserveTimestamp,
     guests,
-    tag,
     specialRequest,
     customerId,
   });

@@ -12,11 +12,12 @@ galleryRouter.post('/', async (request, response) => {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
   if (request.employee.accessLevel === 1) {
-    const { title, img, groupBy } = request.body;
+    const { title, img, groupBy, author } = request.body;
     const gallery = new Gallery({
       title,
       img,
       groupBy,
+      author,
     });
 
     const savedToGallery = await gallery.save();
@@ -33,11 +34,11 @@ galleryRouter.put('/:id', async (request, response) => {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
   if (request.employee.accessLevel === 1) {
-    const { title, groupBy } = request.body;
+    const { title, featured } = request.body;
 
     const gallery = {
       title,
-      groupBy,
+      featured,
     };
 
     const updatedGalleryItem = await Gallery.findByIdAndUpdate(request.params.id, gallery, {

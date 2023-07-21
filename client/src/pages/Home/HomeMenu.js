@@ -1,4 +1,4 @@
-import { Stack, Typography, Box } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ImageBackdrop, ImageButton, ImageSrc, ImageTitle } from '../../components/ComplexButton';
@@ -8,40 +8,45 @@ const menu = [
   {
     title: 'Burger',
     imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/burgerMainMenu.jpg',
-    link: 'menu/burgers',
+    link: 'burger',
   },
   {
     title: 'Pizza',
     imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/pizzaMainMenu.jpg',
-    link: 'menu/pizzas',
+    link: 'pizza',
   },
   {
     title: 'Pasta',
     imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/pastaMainMenu.jpg',
-    link: 'menu/pastas',
+    link: 'pasta',
   },
   {
-    title: 'Shakes',
+    title: 'Beverage',
     imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/shakesMainMenu.jpg',
-    link: 'menu/shakes',
+    link: 'beverage',
   },
 ];
 
 const HomeMenu = () => (
   <SubWindow name="Menu">
-    <Stack direction="row" justifyContent="space-evenly" alignItems="center" spacing={2}>
+    <Grid
+      container
+      direction={{ xs: 'column', md: 'row' }}
+      justifyContent="center"
+      alignItems="center"
+      spacing={4}
+    >
       {menu.map((menuItem) => (
-        <Box key={menuItem.title}>
+        <Grid item md={3} key={menuItem.title} width="70%" height="250px">
           <ImageButton
             component={Link}
-            to={menuItem.link}
+            to="/menu"
+            state={menuItem.link}
             sx={{
-              display: 'flex',
               color: 'text.primary',
-              height: 300,
-              width: 300,
               borderRadius: '25px ',
-
+              width: '100%',
+              height: '100%',
               '&:hover, &.Mui-focusVisible': {
                 border: '4px solid',
                 borderColor: 'secondary.light',
@@ -52,6 +57,8 @@ const HomeMenu = () => (
               style={{
                 backgroundImage: `url(${menuItem.imgSrc})`,
                 backgroundPosition: 'center 55%',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
                 borderRadius: '20px ',
               }}
             >
@@ -61,19 +68,17 @@ const HomeMenu = () => (
                   borderRadius: '20px ',
                 }}
               />
-              <ImageTitle>
+              <ImageTitle sx={{ top: '35%', width: '100%' }}>
                 <Typography
                   component="span"
                   variant="h3"
+                  width={1}
                   color="secondary.light"
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  height={300}
-                  width={300}
+                  textAlign="center"
                   sx={{
                     position: 'relative',
                     textShadow: '4px 4px 4px #000000',
+                    fontWeight: '500',
                   }}
                 >
                   {menuItem.title}
@@ -81,9 +86,9 @@ const HomeMenu = () => (
               </ImageTitle>
             </ImageSrc>
           </ImageButton>
-        </Box>
+        </Grid>
       ))}
-    </Stack>
+    </Grid>
   </SubWindow>
 );
 

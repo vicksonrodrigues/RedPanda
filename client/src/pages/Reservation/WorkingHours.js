@@ -3,151 +3,45 @@ import React from 'react';
 
 import Clock from '@mui/icons-material/AccessTime';
 
+const dayOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 const WorkingHours = () => (
   <Box height="100%" display="flex" alignItems="center" justifyContent="center" width="100%">
-    <Card variant="outlined" sx={{ m: 1, width: '100%' }}>
-      <CardHeader title="Opening Hour" titleTypographyProps={{ textAlign: 'center' }} />
+    <Card variant="outlined" sx={{ m: 1, width: '100%', backgroundColor: 'primary.light' }}>
+      <CardHeader
+        title="Working Hour"
+        titleTypographyProps={{ textAlign: 'center', variant: 'h3' }}
+      />
       <CardContent sx={{ m: 2, border: 2 }}>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
+        {dayOfWeek.map((day) => (
           <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+            key={day}
+            container
+            spacing={1}
+            direction="row"
+            alignItems="center"
+            paddingBottom={1}
           >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Monday
-            </Typography>
+            <Grid
+              item
+              xs={4}
+              sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+            >
+              <Clock />
+              <Typography marginLeft={1} variant="body2" color="text.secondary">
+                {day}
+              </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              <Divider />
+            </Grid>
+            <Grid item xs={4}>
+              <Typography marginLeft={1} variant="body2" color="text.secondary">
+                10:00 - 22:00
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              9:00 - 22:00
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Tuesday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              CLOSED
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Wednesday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              9:00 - 22:00
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Thursday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              9:00 - 22:00
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Friday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              9:00 - 1:00
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Saturday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              10:00 - 1:00
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1} direction="row" alignItems="center" paddingBottom={1}>
-          <Grid
-            item
-            xs={4}
-            sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
-          >
-            <Clock />
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              Sunday
-            </Typography>
-          </Grid>
-          <Grid item xs={4}>
-            <Divider />
-          </Grid>
-          <Grid item xs={4}>
-            <Typography marginLeft={1} variant="body2" color="text.secondary">
-              10:00 - 22:00
-            </Typography>
-          </Grid>
-        </Grid>
+        ))}
       </CardContent>
     </Card>
   </Box>

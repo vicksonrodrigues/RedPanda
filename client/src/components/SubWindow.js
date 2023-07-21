@@ -1,13 +1,12 @@
 import React from 'react';
-import { Container, Divider, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
-const SubWindow = ({ children, name, last }) => (
-  <Container disableGutters sx={{ pt: 2 }}>
+const SubWindow = ({ children, name }) => (
+  <Box display="flex" flexDirection="column " justifyContent="center" mt={3}>
     {name ? (
       <Typography
         gutterBottom
         variant="h3"
-        component="div"
         align="center"
         m={4}
         color="secondary.main"
@@ -20,8 +19,7 @@ const SubWindow = ({ children, name, last }) => (
     )}
 
     {children}
-    {!last ? <Divider variant="middle" sx={{ p: 2 }} /> : <div />}
-  </Container>
+  </Box>
 );
 
 export default SubWindow;

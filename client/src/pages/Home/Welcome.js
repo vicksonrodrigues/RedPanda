@@ -6,7 +6,13 @@ import SubWindow from '../../components/SubWindow';
 
 const Welcome = () => (
   <SubWindow>
-    <Grid container direction="row" spacing={3} alignItems="center" justifyContent="space-evenly">
+    <Grid
+      container
+      direction={{ md: 'row', xs: 'column' }}
+      spacing={3}
+      alignItems="center"
+      justifyContent="space-evenly"
+    >
       <Grid
         item
         xs={6}
@@ -15,16 +21,16 @@ const Welcome = () => (
         display="flex"
         flexDirection="column"
       >
-        <Typography variant="h3" sx={{ my: 2 }} color="secondary.main">
+        <Typography variant="h1" sx={{ my: 2, textAlign: 'center' }} color="secondary.main">
           WELCOME TO RED PANDA
         </Typography>
         <Typography sx={{ my: 2, textAlignLast: 'center', textAlign: 'center' }}>
-          RedPanda combines flavors & inspiration from the Far East & the West to create what we
+          Red Panda combines flavors & inspiration from the Far East & the West to create what we
           think is the best! Home to the original Tikka Burger, we specialize in burger, as well as
           handmade pizzas, pasta with a wide range of customization and appetizers . Feel free to
-          indulge in chill and fun shakes with our fantastic unique cuisine. Whether you’re ordering
-          a multi-course meal or grabbing a coffee, RedPanda&apos;s lively, casual yet upscale
-          atmosphere makes it perfect for dining with friends, family, clients and business
+          indulge in chill and fun shakes with our fantastic unique cuisine. Whether you&apos;re
+          ordering a multi-course meal or grabbing a coffee, Red Panda&apos;s lively, casual yet
+          upscale atmosphere makes it perfect for dining with friends, family, clients and business
           associates.
         </Typography>
         <Button variant="contained" color="secondary" component={Link} to="/about">

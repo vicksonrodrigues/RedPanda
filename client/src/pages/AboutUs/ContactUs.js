@@ -35,57 +35,78 @@ const ContactUs = () => {
 
   const currentLoc = locations.filter((loc) => loc.name === location);
   return (
-    <Box m={3} p={2}>
-      <Grid container>
-        <Grid item xs={6}>
-          <Typography variant="h3">Contact Info</Typography>
-          <Box>
-            <Typography variant="subtitle2" sx={{ py: 2 }}>
-              Locations
-            </Typography>
+    <Grid
+      item
+      container
+      direction={{ xs: 'column', md: 'row' }}
+      justifyContent="space-evenly"
+      mb={3}
+      p={1}
+    >
+      <Grid
+        item
+        xs={5}
+        width={1}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Typography variant="h3" width={1} textAlign="center">
+          Contact Info
+        </Typography>
+        <Box
+          width={1}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="subtitle2" sx={{ py: 2 }}>
+            Locations
+          </Typography>
 
-            <ToggleButtonGroup
-              color="primary"
-              value={location}
-              exclusive
-              onChange={handleChange}
-              aria-label="Platform"
-            >
-              {locations.map((l) => (
-                <ToggleButton key={l.name} value={l.name}>
-                  {l.name}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-            <Box width="75%" height={100} sx={{ p: 2 }}>
-              <Typography variant="subtitle2">Address : </Typography>
-              <Typography> {currentLoc[0].address}</Typography>
-            </Box>
+          <ToggleButtonGroup
+            color="secondary"
+            value={location}
+            exclusive
+            onChange={handleChange}
+            aria-label="Platform"
+          >
+            {locations.map((l) => (
+              <ToggleButton key={l.name} value={l.name}>
+                {l.name}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+          <Box height={100} sx={{ p: 2 }}>
+            <Typography variant="subtitle2">Address : </Typography>
+            <Typography> {currentLoc[0].address}</Typography>
           </Box>
-          <Box display="flex" my={1} alignItems="center">
-            <EmailIcon />
-            <Typography variant="caption" sx={{ marginLeft: 2 }}>
-              redpand@food.com
-            </Typography>
-          </Box>
-          <Box display="flex" my={1} alignItems="center">
-            <PhoneIcon />
-            <Typography variant="caption" sx={{ marginLeft: 2 }}>
-              1-222-333-444
-            </Typography>
-          </Box>
-          <Box display="flex" my={1} alignItems="center" flexWrap="wrap">
-            <Typography variant="subtitle2" color="text.primary">
-              On Social Media :
-            </Typography>
-            <SocialButtons />
-          </Box>
-        </Grid>
-        <Grid item xs={6} width="100%">
-          <MapWrapper locationData={locations} currentLocation={location} />
-        </Grid>
+        </Box>
+        <Box display="flex" my={1} alignItems="center">
+          <EmailIcon />
+          <Typography variant="caption" sx={{ marginLeft: 2 }}>
+            redpand@food.com
+          </Typography>
+        </Box>
+        <Box display="flex" my={1} alignItems="center">
+          <PhoneIcon />
+          <Typography variant="caption" sx={{ marginLeft: 2 }}>
+            1-222-333-444
+          </Typography>
+        </Box>
+        <Box display="flex" my={1} alignItems="center" flexWrap="wrap">
+          <Typography variant="subtitle2" color="text.primary">
+            On Social Media :
+          </Typography>
+          <SocialButtons color="text.primary" />
+        </Box>
       </Grid>
-    </Box>
+      <Grid item xs={5} width="100%">
+        <MapWrapper locationData={locations} currentLocation={location} />
+      </Grid>
+    </Grid>
   );
 };
 

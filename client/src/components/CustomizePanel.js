@@ -1,24 +1,33 @@
 import {
   Box,
-  Table,
+  Typography,
+  Tabs,
+  Tab,
+  /* Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Typography,
-  Tabs,
-  Tab,
   ToggleButtonGroup,
-  ToggleButton,
+  ToggleButton, */
 } from '@mui/material';
 import React, { useState } from 'react';
 
 const CustomizePanel = ({ customization }) => {
+  const [currentTab, setCurrentTab] = useState(customization[0].cTypeName);
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
+
+  /*
+  
   const [toggle, setToggle] = useState(() => [0]);
   const handleToggleChange = (event, newValue) => {
     setToggle((prevState) => prevState.concat(newValue));
   };
-  /* console.log('Customiztion', customization);
+  console.log('Toggle', toggle);
+  console.log('handleToggle', handleToggleChange);
   const random = customization.map((items) =>
     items.cItems.map((initial, initialIndex) => ({
       id: initialIndex,
@@ -34,12 +43,10 @@ const CustomizePanel = ({ customization }) => {
   })); // creates a empty state for toggle button
   */
   // console.log('Intial Toggle State', initialToggleState);
-  const [currentTab, setCurrentTab] = useState(0);
+  /* 
   // const [toggle, setToggle] = useState(initialToggleState);
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
-  };
+  
 
   /* const handleToggleChange = (event, newValue, cusIndex) => {
     const currentValue = event.target.value;
@@ -72,20 +79,24 @@ const CustomizePanel = ({ customization }) => {
             },
           }}
         >
-          {customization.map((row) => (
-            <Tab label={row.cTypeName} key={row.cTypeName} sx={{ px: 4, ml: 3, mt: 2 }} />
+          {customization.map((customizationType) => (
+            <Tab
+              label={customizationType.cTypeName}
+              key={customizationType.cTypeName}
+              value={customizationType.cTypeName}
+              sx={{ px: 4, ml: 3, mt: 2 }}
+            />
           ))}
         </Tabs>
-        {customization.map((c, cIndex) => (
+        {customization.map((c) => (
           <Box
-            hidden={currentTab !== cIndex} // hide the customization panel based on tab selected
-            id={`vertical-tabpanel-${cIndex}`}
+            hidden={currentTab !== c.cTypeName} // hide the customization panel based on tab selected
             sx={{ boxShadow: '-3px 3px 15px 0px black ', borderRadius: '10px 10px 10px 10px' }}
             width={1}
           >
-            {currentTab === cIndex && (
+            {currentTab === c.cTypeName && (
               <Box display="flex" sx={{ p: 1, minHeight: 220 }}>
-                <Table size="small">
+                {/* <Table size="small">
                   <TableHead>
                     <TableRow sx={{ 'td,  th': { border: 0 } }}>
                       <TableCell />
@@ -169,10 +180,10 @@ const CustomizePanel = ({ customization }) => {
                             >
                               $ {price}
                             </ToggleButton> */}
-                      </TableRow>
+                {/* </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </Table> */}
               </Box>
             )}
           </Box>

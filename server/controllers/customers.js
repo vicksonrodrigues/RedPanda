@@ -9,16 +9,15 @@ const Customer = require('../models/customer');
 // @desc get all the customers
 // @access Employee only
 customerRouter.get('/', async (request, response) => {
-  console.log('customer request', request.employee);
   if (!request.employee) {
-    return response.status(401).json({ error: 'token missing or invalid' });
+    return response.status(401).json({ error: 'token missing or invalid' }).end();
   }
   if (request.accessLevel === 1) {
     const customers = await Customer.find({}).populate('orders').populate('reservations');
     if (!customers?.length) {
-      return response.status(400).json({ error: 'No customers found' });
+      return response.status(400).json({ error: 'No customers found' }).end();
     }
-    return response.json(customers);
+    return response.json(customers).end();
   }
   return response
     .status(403)
@@ -40,7 +39,7 @@ customerRouter.get('/:id', async (request, response) => {
       accessGranted = true;
     }
   } else {
-    return response.status(401).json({ error: 'token missing or invalid' });
+    return response.status(401).json({ error: 'token missing or invalid' }).end();
   }
 
   if (accessGranted) {
@@ -48,7 +47,7 @@ customerRouter.get('/:id', async (request, response) => {
       .populate('orders')
       .populate('reservations');
     if (customer) {
-      return response.json(customer);
+      return response.json(customer).end();
     }
     return response.status(404).json({ error: 'Customer is not available in database' }).end();
   }
@@ -69,7 +68,7 @@ customerRouter.post('/', async (request, response) => {
   const existingCustomer = await Customer.findOne({ email });
   if (existingCustomer) {
     return response.status(400).json({
-      error: 'email must be unique',
+      error: 'Email must be unique',
     });
   }
 
@@ -145,8 +144,8 @@ customerRouter.put('/updateBasic/:id', async (request, response) => {
 // @desc add a address
 // @access Customer
 customerRouter.put('/newAddress/:id', async (request, response) => {
-  const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
-  if (!addressLine1 && !addressLine2 && !landmark && !city && !state && !country && !zip && !tag) {
+  const { addressLine1, addressLine2, landmark, zip, tag } = request.body;
+  if (!addressLine1 && !addressLine2 && !landmark && !zip && !tag) {
     return response.status(400).json({ message: 'requires atleast one field for update ' });
   }
   if (!request.customerId) {
@@ -159,9 +158,6 @@ customerRouter.put('/newAddress/:id', async (request, response) => {
       addressLine1,
       addressLine2,
       landmark,
-      city,
-      state,
-      country,
       zip,
       tag,
     };
@@ -180,7 +176,7 @@ customerRouter.put('/newAddress/:id', async (request, response) => {
 // @desc update a address
 // @access Customer
 customerRouter.put('/updateAddress/:id/:addressId', async (request, response) => {
-  const { addressLine1, addressLine2, landmark, city, state, country, zip, tag } = request.body;
+  const { addressLine1, addressLine2, landmark, zip, tag } = request.body;
   if (!request.customerId) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
@@ -190,9 +186,6 @@ customerRouter.put('/updateAddress/:id/:addressId', async (request, response) =>
       addressLine1,
       addressLine2,
       landmark,
-      city,
-      state,
-      country,
       zip,
       tag,
     };

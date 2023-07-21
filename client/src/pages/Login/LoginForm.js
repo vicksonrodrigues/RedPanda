@@ -1,20 +1,32 @@
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Box, Button, OutlinedInput, Typography } from '@mui/material';
-import { Navigate, useNavigate } from 'react-router-dom';
-import useField from '../../hooks/useField';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from '@mui/material';
+import { useFormik } from 'formik';
+import { useLocation, useNavigate } from 'react-router-dom';
+import * as yup from 'yup';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useLoginMutation } from '../../features/auth/authApiSlice';
 import { setCredentials } from '../../features/auth/authSlice';
 import { setNotification } from '../../features/notification/notificationSlice';
 
 const LoginForm = () => {
   const [login] = useLoginMutation();
-  const user = useSelector((state) => state.user);
-
-  const email = useField('email');
-  const password = useField('password');
+  // const user = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [hidden, setHidden] = useState(true);
+
+  const from = location.state?.pathname || '/';
   const dispatch = useDispatch();
   const notify = (notificationMessage, notificationType, notificationOpen = true) => {
     dispatch(
@@ -25,92 +37,142 @@ const LoginForm = () => {
       }),
     );
   };
+  const validationSchema = yup.object({
+    email: yup.string().email('Enter a valid email').required('Email is required'),
+    password: yup.string().required('Password is required'),
+  });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const { accessToken } = await login({
-        email: email.fields.value,
-        password: password.fields.value,
-      }).unwrap();
-      dispatch(setCredentials({ accessToken }));
-      email.reset();
-      password.reset();
-      navigate('/');
-      notify('Login Successful');
-    } catch (err) {
-      if (!err.status) {
-        notify('No Server Response', 'error');
-      } else if (err.status === 400) {
-        notify('Missing Username or Password', 'error');
-      } else if (err.status === 401) {
-        notify('Unauthorized', 'error');
-      } else {
-        notify(`${err.data?.message}`, 'error');
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: async (values, action) => {
+      try {
+        const { accessToken } = await login({
+          email: values.email,
+          password: values.password,
+        }).unwrap();
+        dispatch(setCredentials({ accessToken }));
+        action.resetForm();
+        navigate(from, { state: location.state.state });
+        notify('Login successful! Welcome back!', 'success');
+      } catch (err) {
+        if (!err.status) {
+          notify('No Server Response', 'error');
+        } else if (err.status === 400) {
+          notify('Missing Username or Password', 'error');
+        } else if (err.status === 404) {
+          notify('No User Found: Check your Email or Password', 'error');
+        } else {
+          notify(`${err.data?.error}`, 'error');
+        }
       }
-    }
-  };
-  const handleReset = (event) => {
-    event.preventDefault();
-    email.reset();
-    password.reset();
-    notify('Fields have been Reset', 'info');
+    },
+  });
+
+  const handleClickShowPassword = () => {
+    setHidden((prev) => !prev);
   };
 
-  if (user) {
-    return <Navigate to="/" />;
-  }
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
   return (
-    <Box>
+    <Box display="flex" flexDirection="column">
       <Typography
         textAlign="center"
-        variant="h2"
-        sx={{ width: '100%', fontWeight: 'medium', p: 6, color: 'white' }}
+        variant="h3"
+        sx={{ width: '100%', fontWeight: 'medium', color: 'white', pt: 4 }}
       >
-        Login
+        Log in
       </Typography>
-      <form onSubmit={handleSubmit}>
-        <Box p={2}>
-          <Box>
-            <Typography mb={1} mt={1} variant="subtitle2" color="white">
-              Email
-            </Typography>
-            <OutlinedInput
-              placeholder="Email Id "
+      <Typography
+        textAlign="center"
+        variant="subtitle1"
+        sx={{ width: '100%', fontWeight: 'medium', color: 'secondary.light', pt: 2, pb: 4 }}
+      >
+        {`Welcome back you've been missed!`}
+      </Typography>
+
+      <form onSubmit={formik.handleSubmit}>
+        <Grid container direction="column" px={2} spacing={1}>
+          <Grid item>
+            <TextField
+              required
+              id="email"
+              name="email"
+              type="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email ? formik.errors.email : ' '}
+              label="Email"
+              variant="filled"
               fullWidth
-              type={email.fields.type}
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
               sx={{
-                backgroundColor: 'white',
                 color: 'black',
+                input: { backgroundColor: 'white', color: 'black' },
               }}
-              value={email.fields.value}
-              onChange={email.fields.onChange}
             />
-          </Box>
-          <Box>
-            <Typography mb={1} mt={1} variant="subtitle2" color="white">
-              Password
-            </Typography>
-            <OutlinedInput
-              placeholder="Password"
-              type={password.fields.type}
+          </Grid>
+          <Grid item>
+            <TextField
+              required
+              id="password"
+              name="password"
+              type={hidden ? 'password' : 'text'}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={
+                formik.touched.password && formik.errors.password ? formik.errors.password : ' '
+              }
+              label="Password"
+              variant="filled"
               fullWidth
+              InputLabelProps={{ style: { color: 'black' } }}
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
               sx={{
-                backgroundColor: 'white',
                 color: 'black',
+                input: { backgroundColor: 'white', color: 'black' },
               }}
-              value={password.fields.value}
-              onChange={password.fields.onChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end" sx={{ margin: '0px', height: '100%' }}>
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      sx={{ height: '100%' }}
+                    >
+                      {hidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                style: { padding: '0px' },
+              }}
             />
-          </Box>
-          <Box>
-            <Button size="small">
-              <Typography mb={1} mt={1} variant="subtitle2" color="white">
-                Forget Password ?
-              </Typography>
+            <Button
+              size="small"
+              sx={{
+                marginY: '5px',
+                color: 'white',
+                '&:hover': {
+                  color: '#3c52b2',
+                },
+              }}
+            >
+              Forget Password ?
             </Button>
-          </Box>
-          <Box display="flex" justifyContent="center" py={3}>
+          </Grid>
+
+          <Grid item display="flex" justifyContent="center" pt={3}>
             <Button
               type="submit"
               variant="contained"
@@ -119,21 +181,11 @@ const LoginForm = () => {
               sx={{ bgcolor: 'secondary.light' }}
             >
               <Typography variant="button" color="black">
-                Submit
+                Login
               </Typography>
             </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              sx={{ bgcolor: 'secondary.light', mx: 1 }}
-              onClick={handleReset}
-            >
-              <Typography variant="button" color="black">
-                Reset
-              </Typography>
-            </Button>
-          </Box>
-        </Box>
+          </Grid>
+        </Grid>
       </form>
     </Box>
   );

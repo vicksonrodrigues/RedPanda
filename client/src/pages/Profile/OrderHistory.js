@@ -1,150 +1,172 @@
-import { Box, Typography, Paper, Stack, Pagination, Button } from '@mui/material';
+import { Box, Typography, Paper, Stack, Pagination, Button, Grid, Divider } from '@mui/material';
 import React from 'react';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import dayjs from 'dayjs';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import ProfileSubHeader from '../../components/ProfileSubHeader';
+import { useGetCustomerQuery } from '../../features/customer/customerApiSlice';
 
-const Order = ({ orderItem }) => (
-  <Box component={Paper} p={2} key={orderItem.orderID} position="relative" elevation={10}>
-    <Typography borderBottom={1} borderColor="divider" marginBottom={1} width="75%">
-      Order ID: #{orderItem.orderID}
-    </Typography>
+const localizedFormat = require('dayjs/plugin/localizedFormat');
+
+dayjs.extend(localizedFormat);
+
+const Order = ({ order }) => (
+  <Grid
+    width="100%"
+    height="100%"
+    container
+    item
+    direction="column"
+    component={Paper}
+    p={2}
+    mb={2}
+    position="relative"
+    elevation={10}
+    borderRadius={5}
+  >
+    <Grid
+      item
+      borderBottom={1}
+      borderColor="divider"
+      marginBottom={1}
+      width="65%"
+      py={0.5}
+      display="flex"
+      typography="subtitle2"
+    >
+      Order ID:
+      <Typography pl={1}>#{order.orderNo}</Typography>
+    </Grid>
     <Box
       sx={{
+        height: '60px',
+        p: 1,
         position: 'absolute',
-        inset: '10px -10px auto auto',
+        inset: '25px -10px auto auto',
         backgroundColor: 'secondary.main',
-        padding: '10px 20px 20px 15px',
         boxShadow: '0px -10px 0 inset ',
-        borderRadius: '3px 3px 0 0',
+        borderRadius: '5px 5px 0 0',
         clipPath:
           'polygon(0 0,100% 0 ,100% calc(100% - 10px),calc(100% - 10px) 100%,calc(100% - 10px) calc(100% - 11px),0 calc(100% - 11px))',
       }}
     >
-      <Typography variant="subtitle2">Delivered</Typography>
+      <Typography variant="h6">{order.orderStatus}</Typography>
     </Box>
-    <Typography>Items:</Typography>
-    <Stack direction="row" spacing={2} borderBottom={1} borderColor="divider">
-      {orderItem.item.map((i) => (
-        <Typography padding={1}>
-          {i.quantity} x {i.name}
-        </Typography>
-      ))}
-    </Stack>
-    <Box display="flex" justifyContent="space-between" my={1}>
-      <Typography>Ordered On: {orderItem.date}</Typography>
-      <Typography>Total Amount: ${orderItem.amount}</Typography>
-    </Box>
-    <Box display="flex" justifyContent="flex-end" mt={5}>
+    <Grid item fontWeight="bold" display="flex" flexDirection="column" width="100%">
+      Items:
+      <Stack width="100%" p={2}>
+        {order.orderItems.map((i) => (
+          <Box key={i.dishName} py={1} display="flex" flexDirection="column">
+            <Typography variant="button" color="secondary.main" pb={1}>
+              {i.dishName}
+            </Typography>
+            <Box display="flex" justifyContent="space-between">
+              <Typography display="flex" alignItems="center" pb={1}>
+                {i.quantity} x <CurrencyRupeeIcon fontSize="small" /> {i.price}
+              </Typography>
+              <Typography display="flex" alignItems="center" pb={1}>
+                <CurrencyRupeeIcon fontSize="small" /> {i.totalCost}
+              </Typography>
+            </Box>
+            <Divider />
+          </Box>
+        ))}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          flexDirection={{ xs: 'column-reverse', md: 'row' }}
+        >
+          <Box display="flex" flexDirection="column" my={1} width={{ xs: '100%', md: '50%' }}>
+            <Box fontWeight="bold" display="flex">
+              Date:
+              <Typography ml={1}>
+                {dayjs(`${order.createdAt}`).format('LL')} at{' '}
+                {dayjs(`${order.createdAt}`).format('LT')}
+              </Typography>
+            </Box>
+            <Box fontWeight="bold" display="flex">
+              Payment Mode:
+              <Typography ml={1}>{order.paymentMode}</Typography>
+            </Box>
+          </Box>
+          <Box display="flex" flexDirection="column" width={{ xs: '100%', md: '50%' }}>
+            <Box
+              fontWeight="bold"
+              display="flex"
+              alignSelf="flex-end"
+              justifyContent="flex-end"
+              mb={1}
+              pb={1}
+              width={{ xs: '100%', md: '75%' }}
+              borderBottom={1}
+              borderColor="divider"
+            >
+              Item Total:
+              <Typography ml={1} display="flex" alignItems="center">
+                <CurrencyRupeeIcon fontSize="small" />
+                {order.subTotal.toFixed(2)}
+              </Typography>
+            </Box>
+            <Box
+              fontWeight="bold"
+              display="flex"
+              alignSelf="flex-end"
+              justifyContent="flex-end"
+              mb={1}
+              pb={1}
+              width={{ xs: '100%', md: '75%' }}
+              borderBottom={1}
+              borderColor="divider"
+            >
+              Delivery Cost:
+              <Typography ml={1} display="flex" alignItems="center">
+                <CurrencyRupeeIcon fontSize="small" />
+                {order.deliveryCost.toFixed(2)}
+              </Typography>
+            </Box>
+            <Box
+              fontWeight="bold"
+              display="flex"
+              alignSelf="flex-end"
+              justifyContent="flex-end"
+              mb={1}
+              pb={1}
+              width={{ xs: '100%', md: '75%' }}
+            >
+              Total Amount:
+              <Typography ml={1} display="flex" alignItems="center">
+                <CurrencyRupeeIcon fontSize="small" />
+                {order.totalCost.toFixed(2)}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Stack>
+    </Grid>
+    <Box display="flex" justifyContent="flex-end" mt={1}>
       <Button variant="contained" color="secondary" startIcon={<ReceiptLongIcon />}>
-        View Receipt
+        Download Receipt
       </Button>
     </Box>
-  </Box>
+  </Grid>
 );
 
-const ordersList = [
-  {
-    orderID: 5,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 1,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 56,
-    date: '10th Feb 2022',
-  },
-  {
-    orderID: 10,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 2,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 64,
-    date: '10th Feb 2022',
-  },
-  {
-    orderID: 15,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 1,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 62,
-    date: '10th Feb 2022',
-  },
-  {
-    orderID: 20,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 1,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 51,
-    date: '10th Feb 2022',
-  },
-  {
-    orderID: 25,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 1,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 46,
-    date: '10th Feb 2022',
-  },
-  {
-    orderID: 30,
-    projectName: 'score',
-    item: [
-      {
-        name: 'Oreo Cheesecake Milkshake',
-        quantity: 1,
-      },
-      {
-        name: 'Fruity Pebble Milkshake',
-        quantity: 2,
-      },
-    ],
-    amount: 36,
-    date: '10th Feb 2022',
-  },
-];
+const OrderHistory = ({ value, index, customerAuth }) => {
+  const { currentOrderList, perviousOrderList } = useGetCustomerQuery(customerAuth?.id, {
+    selectFromResult: ({ data, isSuccess }) => ({
+      currentOrderList: data?.orders?.filter((order) => order.orderStatus !== 'Delivered'),
+      perviousOrderList: data?.orders?.filter((order) => order.orderStatus === 'Delivered'),
+      data,
+      isSuccess,
+    }),
+  });
 
-const OrderHistory = ({ value, index }) => {
   const itemsPerPage = 3;
-  const currentorder = true;
+  let noOfPages;
   const [page, setPage] = React.useState(1);
-  const noOfPages = Math.ceil(ordersList.length / itemsPerPage);
+  if (perviousOrderList) {
+    noOfPages = Math.ceil(perviousOrderList.length / itemsPerPage);
+  }
 
   const handleChange = (event, value) => {
     setPage(value);
@@ -153,17 +175,7 @@ const OrderHistory = ({ value, index }) => {
   return (
     <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`}>
       {value === index && (
-        <Box component={Paper} sx={{ m: 3, p: 3 }} border={1} borderColor="divider">
-          <Box
-            display="flex"
-            justifyContent="flex-start"
-            my={3}
-            pb={1}
-            borderBottom={1}
-            borderColor="divider"
-          >
-            <Typography variant="h4">Order History</Typography>
-          </Box>
+        <ProfileSubHeader title="Orders">
           <Box>
             <Box
               display="flex"
@@ -176,13 +188,17 @@ const OrderHistory = ({ value, index }) => {
             >
               <Typography variant="h5">Current Order</Typography>
             </Box>
-            {currentorder ? (
-              <Order orderItem={ordersList[0]} />
-            ) : (
-              <Box component={Paper} p={2} variant="outlined">
-                <Typography>No Orders here</Typography>
-              </Box>
-            )}
+            <Grid container direction="column" alignItems="center" justifyContent="space-around">
+              {currentOrderList?.length > 0 ? (
+                currentOrderList.map((orderItem) => (
+                  <Order key={orderItem?.orderNo} order={orderItem} />
+                ))
+              ) : (
+                <Grid item component={Paper} p={2} variant="outlined" width={1}>
+                  <Typography>No Orders here</Typography>
+                </Grid>
+              )}
+            </Grid>
           </Box>
           <Box>
             <Box
@@ -196,31 +212,41 @@ const OrderHistory = ({ value, index }) => {
             >
               <Typography variant="h5">Previous Order</Typography>
             </Box>
-            <Stack
-              component={Paper}
-              p={2}
-              spacing={2}
-              variant="outlined"
-              sx={{ display: 'flex', flexDirection: 'column' }}
-            >
-              {ordersList.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((orderItem) => (
-                <Order orderItem={orderItem} />
-              ))}
-            </Stack>
-            <Box display="flex" justifyContent="flex-end" p={2}>
-              <Pagination
-                count={noOfPages}
-                page={page}
-                onChange={handleChange}
-                defaultPage={1}
-                color="primary"
-                size="small"
-                showFirstButton
-                showLastButton
-              />
-            </Box>
+            {perviousOrderList?.length > 0 ? (
+              <div>
+                <Stack
+                  component={Paper}
+                  p={2}
+                  spacing={2}
+                  variant="outlined"
+                  sx={{ display: 'flex', flexDirection: 'column' }}
+                >
+                  {perviousOrderList
+                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                    .map((orderItem) => (
+                      <Order key={orderItem?.orderNo} order={orderItem} />
+                    ))}
+                </Stack>
+                <Box display="flex" justifyContent="flex-end" p={2}>
+                  <Pagination
+                    count={noOfPages}
+                    page={page}
+                    onChange={handleChange}
+                    defaultPage={1}
+                    color="primary"
+                    size="small"
+                    showFirstButton
+                    showLastButton
+                  />
+                </Box>
+              </div>
+            ) : (
+              <Box component={Paper} p={2} variant="outlined">
+                <Typography>No Orders here</Typography>
+              </Box>
+            )}
           </Box>
-        </Box>
+        </ProfileSubHeader>
       )}
     </div>
   );

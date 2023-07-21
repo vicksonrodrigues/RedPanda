@@ -34,18 +34,16 @@ const PayOnDelivery = () => (
   </Box>
 );
 
-const PaymentMode = ({ login }) => {
-  const [selectedValue, setSelectedValue] = React.useState('Pay on Delivery');
-
+const PaymentMode = ({ customer, selectedPayment, setSelectedPayment }) => {
   const handleChange = (event) => {
-    setSelectedValue(event.target.value);
+    setSelectedPayment(event.target.value);
   };
   return (
     <Box margin={2}>
-      {!login ? (
+      {!customer ? (
         <Card>
           <CardActionArea
-            disabled={!login}
+            disabled={!customer}
             sx={{
               '&.Mui-disabled': {
                 cursor: 'not-allowed',
@@ -81,7 +79,7 @@ const PaymentMode = ({ login }) => {
                 control={
                   <Radio
                     color="success"
-                    checked={selectedValue === 'Pay on Delivery'}
+                    checked={selectedPayment === 'Pay on Delivery'}
                     onChange={handleChange}
                     value="Pay on Delivery"
                     name="radio-buttons"
@@ -109,7 +107,7 @@ const PaymentMode = ({ login }) => {
                 control={
                   <Radio
                     color="success"
-                    checked={selectedValue === 'Pay Online'}
+                    checked={selectedPayment === 'Pay Online'}
                     onChange={handleChange}
                     value="Pay Online"
                     name="radio-buttons"

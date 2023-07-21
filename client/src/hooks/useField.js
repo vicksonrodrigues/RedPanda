@@ -13,6 +13,7 @@ const useField = (type) => {
 
   return {
     reset,
+    setValue,
     fields: {
       type,
       value,

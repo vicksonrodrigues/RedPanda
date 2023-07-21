@@ -11,7 +11,7 @@ const loginLimiter = require('../middlewares/loginLimiter');
 loginRouter.post('/login', loginLimiter, async (request, response) => {
   const { email, password } = request.body;
   if (!email || !password) {
-    return response.status(400).json({ message: 'All fields are required' });
+    return response.status(400).json({ error: 'All fields are required' });
   }
 
   const customer = await Customer.findOne({ email });
@@ -19,8 +19,8 @@ loginRouter.post('/login', loginLimiter, async (request, response) => {
     customer === null ? false : await bcrypt.compare(password, customer.passwordHash);
 
   if (!(customer && passwordCorrect)) {
-    return response.status(401).json({
-      error: 'invalid email or password',
+    return response.status(404).json({
+      error: 'No User Found: Check your Email or Password',
     });
   }
 
@@ -31,13 +31,13 @@ loginRouter.post('/login', loginLimiter, async (request, response) => {
       belong: 'customer',
     },
     configVar.ACCESS_TOKEN_SECRET,
-    { expiresIn: '15m' },
+    { expiresIn: '30m' },
   );
   const refreshToken = jwt.sign(
     { email: customer.email, id: customer._id },
     configVar.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: '7d',
+      expiresIn: '10m',
     },
   );
 
@@ -53,21 +53,19 @@ loginRouter.post('/login', loginLimiter, async (request, response) => {
 
 loginRouter.get('/refresh', async (request, response) => {
   const { cookies } = request;
-  console.log('Cookies', cookies);
 
-  if (!cookies?.jwt) return response.status(401).json({ message: 'Unauthorized' });
+  if (!cookies?.jwt) return response.status(401).json({ error: 'Session Expired' });
 
   const refreshToken = cookies.jwt;
-
+  // verify the cookie
   jwt.verify(refreshToken, configVar.REFRESH_TOKEN_SECRET, async (err, decoded) => {
     if (err) {
-      return response.status(403).json({ message: 'Forbidden' });
+      return response.status(401).json({ error: 'Unauthorized' });
     }
-    console.log('Customer Email id in cookie', decoded.email);
-    const foundCustomer = await Customer.findOne({ username: decoded.email }).exec();
+    const foundCustomer = await Customer.findOne({ email: decoded.email }).exec();
 
     if (!foundCustomer) {
-      return response.status(401).json({ message: 'Unauthorized' });
+      return response.status(401).json({ error: 'Invalid Token' });
     }
 
     const accessToken = jwt.sign(
@@ -77,21 +75,21 @@ loginRouter.get('/refresh', async (request, response) => {
         belong: 'customer',
       },
       configVar.ACCESS_TOKEN_SECRET,
-      { expiresIn: '15m' },
+      { expiresIn: '5m' },
     );
 
-    response.json({ accessToken });
+    return response.json({ accessToken });
   });
 });
 
 loginRouter.post('/logout', async (request, response) => {
   const { cookies } = request;
-  console.log('Cookie Logout', cookies);
   if (!cookies?.jwt) return response.sendStatus(204); // No content
   response.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
   response.json({ message: 'Cookie cleared' });
 });
 
+// do same changes as customer logins
 // employee auth routes
 loginRouter.post('/employeeLogin', async (request, response) => {
   const { email, password } = request.body;

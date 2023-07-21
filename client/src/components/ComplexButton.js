@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 
 import ButtonBase from '@mui/material/ButtonBase';
 
-const ImageButton = styled(ButtonBase)({
+const ImageButton = styled(ButtonBase)(() => ({
   position: 'relative',
 
   '&:hover, &.Mui-focusVisible': {
@@ -14,7 +14,7 @@ const ImageButton = styled(ButtonBase)({
       opacity: 0,
     },
   },
-});
+}));
 
 const ImageSrc = styled('span')({
   position: 'absolute',

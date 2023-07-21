@@ -9,7 +9,7 @@ const verifyJWT = (request, response, next) => {
     const token = authHeader.split(' ')[1];
     jwt.verify(token, config.ACCESS_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
-        return response.status(403).json({ message: 'Forbidden' });
+        return response.status(401).json({ err });
       }
       if (decoded) {
         if (decoded.belong === 'customer') {
@@ -22,9 +22,12 @@ const verifyJWT = (request, response, next) => {
           request.accessLevel = decoded.accessLevel;
         }
       }
+      next();
     });
+  } else {
+    console.log('No Auth Header');
+    next();
   }
-  next();
 };
 
 module.exports = verifyJWT;

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { React, useState } from 'react';
 
 // import { useSelector, useDispatch } from 'react-redux';
@@ -13,12 +14,14 @@ import {
   useTheme,
   Tooltip,
   Grid,
-  Stack,
   Avatar,
   Menu,
   MenuItem,
   ListItemIcon,
   Divider,
+  AppBar,
+  Toolbar,
+  styled,
 } from '@mui/material';
 import { Link, matchPath, useLocation } from 'react-router-dom';
 // Icon Import
@@ -27,12 +30,11 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import CallIcon from '@mui/icons-material/Call';
 import CalendarMonthTwoToneIcon from '@mui/icons-material/CalendarMonthTwoTone';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+// import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Logout from '@mui/icons-material/Logout';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 // logo
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Logo from '../assests/Logo/Red-Panda-Logo-Transparent.png';
 
 // component imports
@@ -42,10 +44,10 @@ import useAuth from '../hooks/useAuth';
 import { useSendLogoutMutation } from '../features/auth/authApiSlice';
 import { selectCurrentToken } from '../features/auth/authSlice';
 import { useGetCustomerQuery } from '../features/customer/customerApiSlice';
+import { setNotification } from '../features/notification/notificationSlice';
 
 function useRouteMatch(patterns) {
   const { pathname } = useLocation();
-
   for (let i = 0; i < patterns.length; i += 1) {
     const pattern = patterns[i];
     const possibleMatch = matchPath(pattern, pathname);
@@ -57,20 +59,70 @@ function useRouteMatch(patterns) {
   return null;
 }
 
+function stringToColor(string) {
+  let hash = 0;
+  let i;
+
+  /* eslint-disable no-bitwise */
+  if (string) {
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+  }
+
+  let color = '#';
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+  /* eslint-enable no-bitwise */
+
+  return color;
+}
+
+// eslint-disable-next-line consistent-return
+function stringAvatar(firstName) {
+  if (firstName) {
+    return {
+      sx: {
+        border: '1px solid white',
+        color: 'white',
+        bgcolor: stringToColor(firstName),
+      },
+      children: `${firstName?.split(' ')[0][0]}`,
+    };
+  }
+}
+
 const NavBar = () => {
   const token = useSelector(selectCurrentToken);
+  const cartCount = useSelector((state) => state.cart.length);
+
   // const customer = useSelector((state) => state.customer);
   // eslint-disable-next-line no-unused-vars
-  const { id } = useAuth();
-  console.log(id);
+  const user = useAuth();
 
-  const { data: customer } = useGetCustomerQuery(id);
-  console.log('Current Customer', customer);
+  const { data: customer } = useGetCustomerQuery(user?.id, {
+    pollingInterval: 60000,
+    skip: !user,
+  });
 
   const [sendLogout] = useSendLogoutMutation();
+  const dispatch = useDispatch();
+  const notify = (notificationMessage, notificationType, notificationOpen = true) => {
+    dispatch(
+      setNotification({
+        notificationOpen,
+        notificationType,
+        notificationMessage,
+      }),
+    );
+  };
 
   // local states
-  const [profileMenu, setProfileMenu] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   const routeMatch = useRouteMatch(['/', '/menu/*', '/gallery', '/about']);
 
@@ -81,95 +133,107 @@ const NavBar = () => {
   const theme = useTheme();
 
   const handleProfileMenu = (event) => {
-    setProfileMenu(event.currentTarget);
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
-    setProfileMenu(null);
+    setAnchorEl(null);
   };
+  const handleLogout = () => {
+    handleClose();
+
+    sendLogout();
+    notify(`Logged Out Successfully`);
+  };
+  const location = useLocation();
+
+  const StyledTab = styled((props) => <Tab disableRipple {...props} />)(({ theme }) => ({
+    textTransform: 'none',
+    color: 'white',
+    fontSize: theme.typography.pxToRem(18),
+  }));
 
   return (
-    <Box>
-      {/* Top Navigation */}
-      <Grid
-        container
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        px={2}
-        py={1}
-        height={50}
-        wrap="nowrap"
-        sx={{
-          bgcolor: 'neutral.main',
-          borderTop: 1,
-          borderBottom: 1,
-          borderColor: 'white',
-        }}
-      >
-        <Grid item xs={4} display="flex" sx={{ alignItems: 'center' }}>
-          <Typography variant="subtitle2">Follow Us :</Typography>
-          <SocialButtons />
-        </Grid>
+    <AppBar position="sticky">
+      <Toolbar variant="dense" disableGutters sx={{ display: 'flex', flexDirection: 'column' }}>
+        {/* Top Navigation */}
+        <Grid
+          container
+          direction="row"
+          alignItems="center"
+          px={2}
+          py={1}
+          sx={{
+            bgcolor: 'neutral.main',
+            borderTop: 1,
+            borderBottom: 1,
+            borderColor: 'white',
+          }}
+        >
+          <Grid item sm={4} px={2} sx={{ alignItems: 'center', display: 'inline-flex' }}>
+            <Typography variant="overline">Follow Us :</Typography>
+            <SocialButtons color="white" />
+          </Grid>
 
-        <Grid item xs={8} display="flex" alignItems="center" justifyContent="flex-end">
-          <Typography variant="subtitle2">RESERVATIONS:</Typography>
+          <Grid item sm={8} display="inline-flex" alignItems="center" justifyContent="flex-end">
+            <Box display="flex" alignItems="center">
+              <Typography variant="overline">RESERVATIONS:</Typography>
 
-          <Box display="flex" alignItems="center" mx={1}>
-            <CallIcon fontSize="small" />
-            <Typography variant="subtitle2">1-222-333-444</Typography>
-          </Box>
-          <Typography variant="subtitle2" mx={1}>
-            OR
-          </Typography>
-          <Button
-            variant="contained"
-            color="secondary"
-            startIcon={<CalendarMonthTwoToneIcon />}
-            component={Link}
-            to="/reservation"
-            sx={{ mx: 1 }}
-          >
-            <Typography variant="subtitle2">Book Online</Typography>
-          </Button>
-          <Tooltip title={<>{theme.palette.mode} mode</>} arrow>
-            <IconButton sx={{ ml: 1, color: 'text.main' }} onClick={colorMode.toggleColorMode}>
-              {theme.palette.mode === 'dark' ? (
-                <DarkModeIcon fontSize="small" />
-              ) : (
-                <LightModeIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
+              <Box display="inline-flex" alignItems="center" mx={1}>
+                <CallIcon fontSize="small" />
+                <Typography variant="overline" pl={1}>
+                  1-222-333-444
+                </Typography>
+              </Box>
+              <Typography variant="overline" mx={1}>
+                OR
+              </Typography>
+              <Button
+                variant="contained"
+                size="small"
+                color="secondary"
+                startIcon={<CalendarMonthTwoToneIcon />}
+                component={Link}
+                to="/reservation"
+                sx={{ mx: 1 }}
+              >
+                Book Online
+              </Button>
+            </Box>
+            <Box>
+              <Tooltip title={<>{theme.palette.mode} mode</>} arrow>
+                <IconButton sx={{ ml: 1, color: 'text.main' }} onClick={colorMode.toggleColorMode}>
+                  {theme.palette.mode === 'dark' ? (
+                    <DarkModeIcon fontSize="small" />
+                  ) : (
+                    <LightModeIcon fontSize="small" sx={{ color: 'orange' }} />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid
-        container
-        direction="row"
-        borderBottom={1}
-        px={2}
-        sx={{
-          borderColor: 'white',
-          bgcolor: 'primary.main',
-          height: 120,
-        }}
-      >
-        <Grid item xs={3}>
-          <Box
-            display="flex"
+        {/* Main Navigation */}
+        <Grid
+          container
+          direction="row"
+          borderBottom={1}
+          px={2}
+          sx={{
+            borderColor: 'white',
+            bgcolor: 'primary.main',
+          }}
+        >
+          <Grid
+            item
+            sm={3}
             justifyContent="flex-start"
-            sx={{
-              backgroundImage: `url(${Logo})`,
-              backgroundSize: 'contain',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              height: 120,
-              width: 200,
-            }}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <Box display="flex" height="100%" alignItems="flex-end" justifyContent="center">
+            pt={2}
+            sx={{ objectFit: 'contain', objectPosition: 'center' }}
+          >
+            <img src={Logo} alt="Logo" width="50%" height="auto" />
+          </Grid>
+          <Grid item sm={6} alignSelf="flex-end" justifyContent="center" width={1}>
             <Tabs
               value={currentTab}
               textColor="secondary"
@@ -181,86 +245,93 @@ const NavBar = () => {
                 },
               }}
             >
-              <Tab value="/" label="Home" sx={{ color: 'white' }} component={Link} to="/" />
-              <Tab
-                value="/menu/*"
-                label="Menu"
-                sx={{ color: 'white' }}
-                component={Link}
-                to="/menu"
-              />
-              <Tab
-                value="/gallery"
-                label="Gallery"
-                sx={{ color: 'white' }}
-                component={Link}
-                to="/gallery"
-              />
-              <Tab
-                value="/about"
-                label="About Us"
-                sx={{ color: 'white' }}
-                component={Link}
-                to="/about"
-              />
+              <StyledTab value="/" label="Home" component={Link} to="/" />
+              <StyledTab value="/menu/*" label="Menu" component={Link} to="/menu" />
+              <StyledTab value="/gallery" label="Gallery" component={Link} to="/gallery" />
+              <StyledTab value="/about" label="About Us" component={Link} to="/about" />
             </Tabs>
-          </Box>
-        </Grid>
-        <Grid item xs={3}>
-          <Stack
-            direction="row"
+          </Grid>
+          <Grid
+            item
+            sm={3}
+            alignSelf="flex-end"
+            justifyContent="center"
             display="flex"
-            height="100%"
-            alignItems="flex-end"
-            justifyContent="flex-end"
-            py={1}
-            mr={3}
-            spacing={2}
+            pb="4px"
+            pl={3}
           >
-            <IconButton sx={{ color: 'white' }} component={Link} to="/cart">
-              <Badge badgeContent={1} color="secondary">
+            <IconButton
+              sx={{
+                color: 'white',
+
+                '&.MuiIconButton-root:hover': {
+                  color: 'secondary.main',
+                },
+              }}
+              component={Link}
+              to="/cart"
+            >
+              <Badge
+                badgeContent={cartCount}
+                sx={{
+                  '.MuiBadge-badge': {
+                    bgcolor: 'neutral.main',
+                  },
+                }}
+              >
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <Box>
+            <Box display="flex" pl={2}>
               {token === null ? (
                 <Button
-                  variant="contained"
+                  variant="text"
                   component={Link}
                   to="/login"
-                  disableElevation
+                  state={location}
                   sx={{
+                    color: 'white',
                     '&.MuiButton-root:hover': {
                       bgcolor: 'secondary.main',
                     },
                   }}
                 >
-                  <Typography variant="subtitle2">Login/Sign-Up</Typography>
+                  Login
                 </Button>
               ) : (
                 <div>
-                  <IconButton
-                    size="small"
-                    onClick={handleProfileMenu}
-                    sx={{
-                      '&.MuiIconButton-root:hover': {
-                        bgcolor: 'secondary.light',
-                      },
-                    }}
-                  >
-                    <Avatar>
-                      <AccountCircleIcon sx={{ color: 'black' }} />
-                    </Avatar>
-                  </IconButton>
+                  <Box>
+                    <Tooltip title="Account settings">
+                      <IconButton
+                        size="small"
+                        onClick={handleProfileMenu}
+                        sx={{
+                          '&.MuiIconButton-root:hover': {
+                            bgcolor: 'secondary.light',
+                          },
+                        }}
+                      >
+                        <Avatar {...stringAvatar(customer?.firstName)} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                   <Menu
-                    anchorEl={profileMenu}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
                     PaperProps={{
                       elevation: 0,
                       sx: {
                         width: '200px',
                         overflow: 'visible',
                         filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                        mt: 0.5,
+                        mt: 1.5,
+                        '& .MuiAvatar-root': {
+                          width: 32,
+                          height: 32,
+                          ml: -0.5,
+                          mr: 1,
+                        },
 
                         '&:before': {
                           content: '""',
@@ -278,20 +349,15 @@ const NavBar = () => {
                     }}
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    open={Boolean(profileMenu)}
-                    onClose={handleClose}
                   >
-                    <Typography px={2} py={1}>
-                      Welcome , {customer.firstName}
-                    </Typography>
-                    <Divider />
+                    <Typography p={2}>Welcome , {customer?.firstName}</Typography>
+
                     <MenuItem component={Link} to="/profile" onClick={handleClose}>
                       <Avatar sizes="small" />
                       Profile
-                      <ArrowForwardIosIcon />
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={sendLogout}>
+                    <MenuItem onClick={handleLogout}>
                       <ListItemIcon>
                         <Logout fontSize="small" />
                       </ListItemIcon>
@@ -301,10 +367,10 @@ const NavBar = () => {
                 </div>
               )}
             </Box>
-          </Stack>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
