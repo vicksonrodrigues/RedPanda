@@ -44,7 +44,7 @@ const AwardWinning = () => (
     <Grid container item xs={12} md={6}>
       {awards.map((item) => (
         <Grid item key={item.img} xs={4} justifyContent="center" display="flex" p={2}>
-          <img src={`${item.img}`} alt={item.title} height="100" />
+          <img src={item.img} alt={item.title} height="100" />
         </Grid>
       ))}
     </Grid>

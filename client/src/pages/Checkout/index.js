@@ -20,7 +20,6 @@ const Checkout = () => {
   const [addOrder, { isLoading, isSuccess }] = useAddOrderMutation();
   const navigate = useNavigate();
   const location = useLocation();
-  console.log('Checkout from Location variable :', location.state?.from?.pathname);
   const dispatch = useDispatch();
   const notify = (notificationMessage, notificationType, notificationOpen = true) => {
     dispatch(

@@ -128,7 +128,7 @@ const Cart = () => {
       ) : (
         <Grid container direction="column" justifyContent="center" alignItems="center" height={600}>
           <Grid item>
-            <img src={`${PandaInBag}`} alt="Panda in bag" height="350" />
+            <img src={PandaInBag} alt="Panda in bag" height="350" />
           </Grid>
           <Grid item pb={3}>
             <Typography variant="h2" color="secondary.light" fontWeight="bold">

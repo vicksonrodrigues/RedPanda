@@ -6,7 +6,7 @@ import PandaError from '../../assests/PageImages/RedpandaErrorPage.png';
 const NoMatch = () => (
   <Grid container direction="column" justifyContent="center" alignItems="center" height={600}>
     <Grid>
-      <img src={`${PandaError}`} alt="Panda in bag" height="350" />
+      <img src={PandaError} alt="Panda in bag" height="350" />
     </Grid>
     <Grid item p={1}>
       <Typography variant="subtitle2" fontSize={20} color="primary.light">

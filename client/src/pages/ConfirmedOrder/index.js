@@ -6,7 +6,7 @@ import PandaSmiling from '../../assests/PageImages/SmilingRedPanda.png';
 const ConfirmedOrder = () => (
   <Grid container direction="column" justifyContent="center" alignItems="center" height={600}>
     <Grid>
-      <img src={`${PandaSmiling}`} alt="Panda in bag" height="350" />
+      <img src={PandaSmiling} alt="Panda in bag" height="350" />
     </Grid>
     <Grid item p={1}>
       <Typography variant="h3" fontWeight="bold" color="primary.light">

@@ -10,11 +10,13 @@ import {
   TextField,
 } from '@mui/material';
 import React, { useEffect } from 'react';
+
 import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch } from 'react-redux';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import { useAddNewAddressMutation } from '../features/customer/customerApiSlice';
 import { setNotification } from '../features/notification/notificationSlice';
-import useField from '../hooks/useField';
 
 const AddressDialog = ({ customerId, open, setOpen }) => {
   const [addAddress, { isLoading, isSuccess }] = useAddNewAddressMutation();
@@ -29,55 +31,64 @@ const AddressDialog = ({ customerId, open, setOpen }) => {
     );
   };
 
-  const addressLine1 = useField('text');
-  const addressLine2 = useField('text');
-  const landmark = useField('text');
-  const zipCode = useField('text');
-  const tag = useField('text');
-
-  const handleResetForm = () => {
-    addressLine1.reset();
-    addressLine2.reset();
-    landmark.reset();
-    zipCode.reset();
-    tag.reset();
-  };
+  const validationSchema = yup.object({
+    addressLine1: yup
+      .string()
+      .min(5, 'Must be 5 characters or more')
+      .required('Address Line 1 is Required'),
+    addressLine2: yup.string().min(2, 'Must be 2 characters or more'),
+    landmark: yup.string().min(2, 'Must be 2 characters or more'),
+    zipCode: yup
+      .string()
+      .matches(/^[1-9][0-9]{5}$/, { message: 'Please enter valid zip.' })
+      .required('Zip Code is required'),
+    tag: yup.string().min(2, 'Must be 2 character or more').required('Nick Name is required'),
+  });
 
   const handleClose = () => {
-    handleResetForm();
     setOpen(false);
   };
 
-  const handleAddAddress = async (event) => {
-    event.preventDefault();
-
-    if (!isLoading) {
-      const newAddress = {
-        addressLine1: addressLine1.fields.value,
-        addressLine2: addressLine2.fields.value,
-        landmark: landmark.fields.value,
-        zip: zipCode.fields.value,
-        tag: tag.fields.value,
-      };
-
-      try {
-        await addAddress({ id: customerId, newAddress });
-        handleClose();
-      } catch (err) {
-        notify(`${err.data?.error}`);
+  const formik = useFormik({
+    initialValues: {
+      addressLine1: '',
+      addressLine2: '',
+      landmark: '',
+      zipCode: '',
+      tag: '',
+    },
+    initialErrors: {
+      lastName: ' ',
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      if (!isLoading) {
+        const newAddress = {
+          addressLine1: values.addressLine1,
+          addressLine2: values.addressLine2,
+          landmark: values.landmark,
+          zip: values.zipCode,
+          tag: values.tag,
+        };
+        try {
+          await addAddress({ id: customerId, newAddress });
+          handleClose();
+        } catch (err) {
+          notify(`${err.data?.error}`);
+        }
       }
-    }
-  };
+    },
+  });
 
   useEffect(() => {
     if (isSuccess) {
       notify('Address Successfully Added');
-      handleResetForm();
+      formik.handleReset();
     }
   }, [isSuccess]);
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <form onSubmit={handleAddAddress}>
+      <form onSubmit={formik.handleSubmit}>
         <DialogTitle>
           Enter Address details
           <IconButton
@@ -95,53 +106,94 @@ const AddressDialog = ({ customerId, open, setOpen }) => {
         <DialogContent>
           <Stack my={1} spacing={2}>
             <TextField
-              value={addressLine1.fields.value}
-              onChange={addressLine1.fields.onChange}
               required
-              autoFocus
-              id="address1"
+              id="addressLine1"
+              name="addressLine1"
+              type="text"
               label="Address Line 1"
-              type="text"
               fullWidth
+              value={formik.values.addressLine1}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.addressLine1 && Boolean(formik.errors.addressLine1)}
+              helperText={
+                formik.touched.addressLine1 && formik.errors.addressLine1
+                  ? formik.errors.addressLine1
+                  : ' '
+              }
               variant="outlined"
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
             />
             <TextField
-              value={addressLine2.fields.value}
-              onChange={addressLine2.fields.onChange}
-              id="address2"
+              id="addressLine2"
+              name="addressLine2"
+              type="text"
               label="Address Line 2"
-              type="text"
               fullWidth
+              value={formik.values.addressLine2}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.addressLine2 && Boolean(formik.errors.addressLine2)}
+              helperText={
+                formik.touched.addressLine2 && formik.errors.addressLine2
+                  ? formik.errors.addressLine2
+                  : ' '
+              }
               variant="outlined"
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
             />
             <TextField
-              value={landmark.fields.value}
-              onChange={landmark.fields.onChange}
               id="landmark"
+              name="landmark"
+              type="text"
               label="Landmark"
-              type="text"
               fullWidth
+              value={formik.values.landmark}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.landmark && Boolean(formik.errors.landmark)}
+              helperText={
+                formik.touched.landmark && formik.errors.landmark ? formik.errors.landmark : ' '
+              }
               variant="outlined"
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
             />
             <TextField
-              value={zipCode.fields.value}
-              onChange={zipCode.fields.onChange}
               required
-              id="zipcode"
-              label="ZipCode"
+              id="zipCode"
+              name="zipCode"
               type="text"
+              label="Zip Code"
               fullWidth
+              value={formik.values.zipCode}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.zipCode && Boolean(formik.errors.zipCode)}
+              helperText={
+                formik.touched.zipCode && formik.errors.zipCode ? formik.errors.zipCode : ' '
+              }
               variant="outlined"
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
             />
             <TextField
-              value={tag.fields.value}
-              onChange={tag.fields.onChange}
               required
               id="tag"
-              label="Address NickName/Title"
+              name="tag"
               type="text"
+              label="Nick Name"
               fullWidth
+              value={formik.values.tag}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.tag && Boolean(formik.errors.tag)}
+              helperText={formik.touched.tag && formik.errors.tag ? formik.errors.tag : ' '}
               variant="outlined"
+              FormHelperTextProps={{ style: { backgroundColor: 'transparent' } }}
+              InputLabelProps={{ style: { color: 'black' } }}
             />
           </Stack>
         </DialogContent>

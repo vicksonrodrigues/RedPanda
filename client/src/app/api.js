@@ -4,7 +4,7 @@ import { logout, setCredentials } from '../features/auth/authSlice';
 import { setNotification } from '../features/notification/notificationSlice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'https://redpanda-api.onrender.com',
+  baseUrl: 'http://localhost:3001/api',
   credentials: 'include',
   prepareHeaders: (headers, { getState, endpoint }) => {
     const { token } = getState().auth;
@@ -29,7 +29,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       { ...api, endpoint: 'refresh' },
       extraOptions,
     );
-    console.log('refresh', refreshResult);
     if (refreshResult?.data) {
       // store the new token
       api.dispatch(setCredentials(refreshResult.data));

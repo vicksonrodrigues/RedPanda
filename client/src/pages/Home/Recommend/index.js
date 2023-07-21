@@ -36,12 +36,12 @@ const Recommend = () => {
       <Grid container alignItems="center" justifyContent="center" direction="column" width="100%">
         <Grid item width="70%">
           <Typography textAlign="center">
-            {`${`At RedPanda, we take immense pride in the talent and creativity of our exceptional chefs.
+            {`At RedPanda, we take immense pride in the talent and creativity of our exceptional chefs.
           Each one of them possesses a passion for crafting exquisite dishes, using the finest
           ingredients and innovative techniques to bring flavors to life. Our Chef's Recommendation 
           is a curated selection of their most exceptional creations, handpicked to showcase
           their culinary prowess and ignite your taste buds.
-          From artfully plated masterpieces to comfort food with a gourmet twist, each dish represents the unique style and culinary vision of our talented chefs`}`}
+          From artfully plated masterpieces to comfort food with a gourmet twist, each dish represents the unique style and culinary vision of our talented chefs`}
           </Typography>
         </Grid>
 

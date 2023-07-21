@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import {
   Box,
   Button,
@@ -11,9 +12,6 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-// import { useDispatch } from 'react-redux';
-// import { useAddNewAddressMutation } from '../../features/customer/customerApiSlice';
-// import { setNotification } from '../../features/notification/notificationSlice';
 import AddressDialog from '../../components/AddressDialog';
 import { useGetCustomerQuery } from '../../features/customer/customerApiSlice';
 
@@ -137,7 +135,7 @@ const DeliveryAddress = ({ customer, setDeliveryAddress }) => {
                           exclusive
                         >
                           {customerAddresses?.map((location, index) => (
-                            <ToggleButton value={index} key={location.id}>
+                            <ToggleButton value={index} key={location._id}>
                               {location.tag}
                             </ToggleButton>
                           ))}
