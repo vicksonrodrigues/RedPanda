@@ -4,7 +4,7 @@ import { logout, setCredentials } from '../features/auth/authSlice';
 import { setNotification } from '../features/notification/notificationSlice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3001/api',
+  baseUrl: 'https://redpanda-api.onrender.com',
   credentials: 'include',
   prepareHeaders: (headers, { getState, endpoint }) => {
     const { token } = getState().auth;
