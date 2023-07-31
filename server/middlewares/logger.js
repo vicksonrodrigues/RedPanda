@@ -28,12 +28,12 @@ const transports = [
   new winston.transports.Console(),
 
   new winston.transports.File({
-    filename: 'error.log',
+    filename: '/error.log',
     level: 'error',
   }),
   // Allow to print all the error message inside the all.log file
   // (also the error log that are also printed inside the error.log(
-  new winston.transports.File({ filename: 'all.log' }),
+  new winston.transports.File({ filename: '/all.log' }),
 ];
 
 const logger = winston.createLogger({
