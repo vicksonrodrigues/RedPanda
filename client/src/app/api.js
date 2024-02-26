@@ -4,7 +4,7 @@ import { logout, setCredentials } from '../features/auth/authSlice';
 import { setNotification } from '../features/notification/notificationSlice';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'https://jolly-hen-shorts.cyclic.cloud/api/',
+  baseUrl: 'http://localhost:3001/api' /* 'https://jolly-hen-shorts.cyclic.cloud/api/', */,
   credentials: 'include',
   prepareHeaders: (headers, { getState, endpoint }) => {
     const { token } = getState().auth;

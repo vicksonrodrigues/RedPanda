@@ -3,26 +3,30 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ImageBackdrop, ImageButton, ImageSrc, ImageTitle } from '../../components/ComplexButton';
 import SubWindow from '../../components/SubWindow';
+import burgerMainMenu from '../../assests/MainMenu/burgerMainMenu.jpg';
+import pastaMainMenu from '../../assests/MainMenu/pastaMainMenu.jpg';
+import pizzaMainMenu from '../../assests/MainMenu/pizzaMainMenu.jpg';
+import shakesMainMenu from '../../assests/MainMenu/shakesMainMenu.jpg';
 
 const menu = [
   {
     title: 'Burger',
-    imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/burgerMainMenu.jpg',
+    imgSrc: burgerMainMenu,
     link: 'burger',
   },
   {
     title: 'Pizza',
-    imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/pizzaMainMenu.jpg',
+    imgSrc: pastaMainMenu,
     link: 'pizza',
   },
   {
     title: 'Pasta',
-    imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/pastaMainMenu.jpg',
+    imgSrc: pizzaMainMenu,
     link: 'pasta',
   },
   {
     title: 'Beverage',
-    imgSrc: 'http://d3j0x1xj96q3am.cloudfront.net/MainMenu/shakesMainMenu.jpg',
+    imgSrc: shakesMainMenu,
     link: 'beverage',
   },
 ];

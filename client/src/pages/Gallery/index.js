@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { Box, Divider, Grid, Paper, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Divider, Grid, Paper, Tab, Tabs, Typography, useMediaQuery } from '@mui/material';
 import React from 'react';
+import { useTheme } from '@mui/material/styles';
 import PageHeader from '../../components/PageHeader';
 import useTitle from '../../hooks/useTitle';
 import CustomImageList from './CustomImageList';
@@ -27,7 +28,7 @@ function TabPanel(props) {
             justifyContent="center"
             display="flex"
           >
-            <Box sx={{ width: 500 }}>
+            <Box sx={{ width: { xs: 300, sm: 500 } }}>
               <Divider
                 sx={{
                   '&::before': {
@@ -67,6 +68,9 @@ const Gallery = () => {
     setValue(newValue);
   };
   useTitle('RedPanda - Gallery');
+
+  const theme = useTheme();
+  const matchDownMd = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <PageHeader pageName="Gallery">
       <Grid
@@ -93,7 +97,7 @@ const Gallery = () => {
         <Grid item container width={1} direction="row" justifyContent="space-evenly">
           <Grid item sm={2} mt={3}>
             <Tabs
-              orientation="vertical"
+              orientation={matchDownMd ? 'horizontal' : 'vertical'}
               value={value}
               textColor="secondary"
               indicatorColor="secondary"

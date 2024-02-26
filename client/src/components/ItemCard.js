@@ -80,7 +80,7 @@ const ItemCard = ({ singleItem }) => {
               }}
             >
               <Typography variant="subtitle2" color="secondary.light">
-                ${singleItem.price}
+                &#x20B9;{singleItem.price}
               </Typography>
             </Avatar>
           </Box>

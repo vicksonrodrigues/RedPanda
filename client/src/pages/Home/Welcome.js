@@ -3,6 +3,7 @@ import { Typography, Box, Button, Grid } from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SubWindow from '../../components/SubWindow';
+import RestaurantMain from '../../assests/RestaurantMain.jpg';
 
 const Welcome = () => (
   <SubWindow>
@@ -38,11 +39,7 @@ const Welcome = () => (
         </Button>
       </Grid>
       <Grid item xs={6} alignItems="center" justifyContent="center" display="flex">
-        <Box
-          component="img"
-          src="http://d3j0x1xj96q3am.cloudfront.net/RestuarantMain.jpg"
-          sx={{ maxWidth: '100%', height: 'auto', p: 4 }}
-        />
+        <Box component="img" src={RestaurantMain} sx={{ maxWidth: '100%', height: 'auto', p: 4 }} />
       </Grid>
     </Grid>
   </SubWindow>

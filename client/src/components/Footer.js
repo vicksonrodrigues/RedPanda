@@ -41,13 +41,13 @@ const Footer = () => (
         container
         direction="row"
         alignItems="flex-start"
-        justifyContent="center"
+        justifyContent="space-around"
         spacing={2}
         sx={{ pb: 2, borderBottom: '1px dashed grey' }}
       >
         <Grid item display="flex" flexDirection="column" xs={3}>
           <Box display="flex" flexDirection="column">
-            <Typography mb={1} variant="h4">
+            <Typography mb={1} variant="h5">
               Contact
             </Typography>
             <Box display="flex" my={1} alignItems="center">
@@ -71,7 +71,7 @@ const Footer = () => (
           </Box>
         </Grid>
         <Grid item xs={3}>
-          <Typography variant="h4" mb={1}>
+          <Typography variant="h5" mb={1}>
             Locations
           </Typography>
           <Typography variant="overline" fontWeight="medium">
@@ -86,22 +86,25 @@ const Footer = () => (
         </Grid>
         <Grid item xs={2}>
           <Stack>
-            <Typography variant="h4" mb={1} textAlign="center">
+            <Typography variant="h5" mb={1} textAlign="left">
               Site Map
             </Typography>
-
-            {siteLinks.map((siteLink) => (
-              <Button
-                key={siteLink.name}
-                sx={{ py: 0, minHeight: 32 }}
-                component={Link}
-                to={siteLink.link}
-              >
-                <Typography variant="overline" textAlign="left" fontWeight="bold">
-                  {siteLink.name}
-                </Typography>
-              </Button>
-            ))}
+            <Grid container alignItems="center" justifyContent="space-between">
+              {siteLinks.map((siteLink) => (
+                <Grid item xs={5} sx={{ padding: '0px' }}>
+                  <Button
+                    key={siteLink.name}
+                    component={Link}
+                    to={siteLink.link}
+                    sx={{ padding: '0px', justifyContent: 'flex-start' }}
+                  >
+                    <Typography variant="overline" fontWeight="bold">
+                      {siteLink.name}
+                    </Typography>
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
           </Stack>
         </Grid>
       </Grid>

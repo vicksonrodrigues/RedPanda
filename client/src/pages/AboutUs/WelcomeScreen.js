@@ -1,5 +1,6 @@
 import { Box, Grid, Typography } from '@mui/material';
 import React from 'react';
+import RestaurantMain from '../../assests/RestaurantMain.jpg';
 
 const WelcomeScreen = () => (
   <Grid
@@ -11,11 +12,7 @@ const WelcomeScreen = () => (
     mb={3}
   >
     <Grid item alignItems="center" justifyContent="center" display="flex" md={5}>
-      <Box
-        component="img"
-        src="http://d3j0x1xj96q3am.cloudfront.net/RestuarantMain.jpg"
-        sx={{ maxWidth: '100%', height: 'auto' }}
-      />
+      <Box component="img" src={RestaurantMain} sx={{ maxWidth: '100%', height: 'auto' }} />
     </Grid>
 
     <Grid item xs={5}>

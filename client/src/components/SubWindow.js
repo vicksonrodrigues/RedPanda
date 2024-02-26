@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 const SubWindow = ({ children, name }) => (
-  <Box display="flex" flexDirection="column " justifyContent="center" mt={3}>
+  <Box display="flex" flexDirection="column " justifyContent="center" mt={4}>
     {name ? (
       <Typography
         gutterBottom

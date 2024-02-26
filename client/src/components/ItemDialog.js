@@ -7,6 +7,7 @@ import {
   DialogTitle,
   IconButton,
   Typography,
+  useMediaQuery,
   // Paper,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -14,9 +15,10 @@ import React, { useEffect, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CloseIcon from '@mui/icons-material/Close';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+// import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useDispatch, useSelector } from 'react-redux';
 // import CustomizePanel from './CustomizePanel';
+import { useTheme } from '@mui/material/styles';
 import { addItem, removeItem } from '../features/cart/cartSlice';
 import { useGetMenuQuery } from '../features/menu/menuApiSlice';
 import ItemQuantityButtons from './ItemQuantityButtons';
@@ -46,6 +48,9 @@ const ItemDialog = ({ id, open, handleClose }) => {
   const [disabled, setDisabled] = useState(!itemInCart[0]);
   const [quantity, setQuantity] = React.useState(initialQuantity);
   const [openAlert, setOpenAlert] = React.useState(false);
+
+  const theme = useTheme();
+  const matchDownMd = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (!itemInCart[0]) {
@@ -110,10 +115,10 @@ const ItemDialog = ({ id, open, handleClose }) => {
       <DialogContent
         sx={{
           display: 'flex',
-
-          p: 3,
+          flexDirection: { xs: 'column', sm: 'row' },
+          p: { xs: 0, sm: 3 },
           '&::-webkit-scrollbar': {
-            width: '12px',
+            width: { xs: '0px', sm: '12px' },
           },
           '&::-webkit-scrollbar-track': {
             backgroundColor: 'secondary.main',
@@ -130,19 +135,25 @@ const ItemDialog = ({ id, open, handleClose }) => {
       >
         {/* Image in Dialog box */}
         <Box
-          component="img"
-          src={menuItem?.img}
-          alt={menuItem?.dishName}
           sx={{
-            width: '50%',
             display: 'flex',
             objectFit: 'contain',
-            alignContent: 'center',
+            objectPosition: 'center',
+            justifyContent: 'center',
+            mt: { xs: 3, sm: 0 },
+            px: { xs: 1, sm: 0 },
           }}
-        />
+        >
+          <img
+            src={menuItem?.img}
+            alt={menuItem?.dishName}
+            width={matchDownMd ? '70%' : '100%'}
+            height="auto"
+          />
+        </Box>
         {/* Side Bar */}
         <Box
-          sx={{ width: '50%', mx: 3, p: 3 }}
+          sx={{ width: { xs: '100%', sm: '50%' }, mx: { xs: 0, sm: 3 }, p: { xs: 0, sm: 3 } }}
           display="flex"
           flexDirection="column"
           justifyContent="space-between"
@@ -153,37 +164,47 @@ const ItemDialog = ({ id, open, handleClose }) => {
             onClick={handleClose}
             sx={{
               position: 'absolute',
-              right: 8,
+              right: 1,
               top: 8,
-              color: (theme) => theme.palette.grey[500],
+              color: (theme) => theme.palette.grey[700],
             }}
           >
             <CloseIcon />
           </IconButton>
           {/* Item Details and Customization */}
           <Box width={1}>
-            <Typography variant="h4" textAlign="center" color="secondary.light">
+            <Typography
+              variant="h4"
+              textAlign="center"
+              color="secondary.light"
+              pt={{ xs: 3, sm: 0 }}
+              px={{ xs: 1, sm: 0 }}
+            >
               {menuItem?.dishName}
             </Typography>
-            <Typography py={3} sx={{ textAlign: 'left' }}>
+            <Typography
+              pt={3}
+              px={{ xs: 1, sm: 0 }}
+              sx={{ textAlign: 'left', fontSize: { xs: '12px', sm: '16px' } }}
+            >
               {menuItem?.description}
             </Typography>
-            <Typography py={3} sx={{ textAlignLast: 'left', textAlign: 'center' }}>
-              Price: <CurrencyRupeeIcon fontSize="small" />
+            <Typography
+              py={3}
+              px={{ xs: 1, sm: 0 }}
+              sx={{ textAlignLast: 'left', textAlign: 'center' }}
+            >
+              Price: &#x20B9;
               {menuItem?.price}
             </Typography>
-            {/* <CustomizePanel customization={singleItem.customization} />
-            <Box component={Paper} height={70} p={1}>
-              <Typography>Burger + sides</Typography>
-            </Box> */}
           </Box>
           {/* Item Quantity ,total Cost and Action Button */}
           <Box>
-            <Typography borderTop={1} textAlign="end" p={1}>
-              Total - <CurrencyRupeeIcon fontSize="small" />
+            <Typography borderTop={1} textAlign="end" p={1} mx={{ xs: 1, sm: 0 }}>
+              Total - &#x20B9;
               {(menuItem ? menuItem.price * quantity : 0).toFixed(2)}
             </Typography>
-            <DialogActions sx={{ display: 'flex' }}>
+            <DialogActions sx={{ display: 'flex', px: { xs: 1, sm: 0 } }}>
               {!itemInCart[0] ? (
                 <>
                   <Button size="large" onClick={handleBuy} variant="contained">

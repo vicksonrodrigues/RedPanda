@@ -3,7 +3,8 @@ import * as React from 'react';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useGetGalleryQuery } from '../../features/gallery/galleryApiSlice';
 
 const CustomImageList = ({ panelName }) => {
@@ -12,6 +13,8 @@ const CustomImageList = ({ panelName }) => {
       imageList: data?.filter((image) => image.groupBy === panelName),
     }),
   });
+  const theme = useTheme();
+  const matchDownMd = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Box
@@ -28,7 +31,7 @@ const CustomImageList = ({ panelName }) => {
       }}
     >
       {imageList && (
-        <ImageList cols={2} gap={5} variant="masonry">
+        <ImageList cols={matchDownMd ? 1 : 2} gap={5} variant="masonry">
           {imageList.map((item) => (
             <ImageListItem key={item.title}>
               <img
