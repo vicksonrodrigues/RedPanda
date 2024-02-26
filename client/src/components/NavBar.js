@@ -144,7 +144,6 @@ const NavBar = () => {
   ]);
 
   const currentTab = routeMatch === null ? false : routeMatch?.pattern?.path;
-  console.log('currentTab', currentTab);
 
   const colorMode = useThemeUpdate();
 
@@ -199,8 +198,6 @@ const NavBar = () => {
   };
 
   const [selectedIndex, setSelectedIndex] = useState('/');
-
-  console.log('selected', selectedIndex);
 
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);

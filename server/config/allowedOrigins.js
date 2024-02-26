@@ -1,3 +1,3 @@
-const allowedOrigins = ['https://redpanda.onrender.com', 'http://localhost:3000'];
+const allowedOrigins = ['https://redpanda.onrender.com'];
 
 module.exports = allowedOrigins;
