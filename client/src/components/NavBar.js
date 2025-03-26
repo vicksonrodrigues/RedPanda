@@ -97,8 +97,12 @@ function stringAvatar(firstName) {
     return {
       sx: {
         border: '1px solid white',
+        width: '25px',
+        height: '25px',
         color: 'white',
         bgcolor: stringToColor(firstName),
+        fontSize: '18px',
+        paddingBottom: '5px',
       },
       children: `${firstName?.split(' ')[0][0]}`,
     };
@@ -167,7 +171,7 @@ const NavBar = () => {
   const StyledTab = styled((props) => <Tab disableRipple {...props} />)(({ theme }) => ({
     textTransform: 'none',
     color: 'white',
-    fontSize: theme.typography.pxToRem(18),
+    fontSize: theme.typography.pxToRem(15),
   }));
 
   // for mobile
@@ -219,7 +223,6 @@ const NavBar = () => {
             alignItems="center"
             display={{ xs: 'none', sm: 'flex' }}
             px={2}
-            py={1}
             sx={{
               bgcolor: 'neutral.main',
               borderTop: 1,
@@ -228,21 +231,25 @@ const NavBar = () => {
             }}
           >
             <Grid item sm={4} px={2} sx={{ alignItems: 'center', display: 'inline-flex' }}>
-              <Typography variant="overline">Follow Us :</Typography>
+              <Typography variant="overline" fontSize="10px">
+                Follow Us :
+              </Typography>
               <SocialButtons color="white" />
             </Grid>
 
             <Grid item sm={8} display="inline-flex" alignItems="center" justifyContent="flex-end">
               <Box display="flex" alignItems="center">
-                <Typography variant="overline">RESERVATIONS:</Typography>
+                <Typography variant="overline" fontSize="10px">
+                  RESERVATIONS:
+                </Typography>
 
                 <Box display="inline-flex" alignItems="center" mx={1}>
-                  <CallIcon fontSize="small" />
-                  <Typography variant="overline" pl={1}>
+                  <CallIcon sx={{ fontSize: '16px' }} />
+                  <Typography variant="overline" pl={1} fontSize="10px">
                     1-222-333-444
                   </Typography>
                 </Box>
-                <Typography variant="overline" mx={1}>
+                <Typography variant="overline" mx={1} fontSize="10px">
                   OR
                 </Typography>
                 <Button
@@ -252,7 +259,7 @@ const NavBar = () => {
                   startIcon={<CalendarMonthTwoToneIcon />}
                   component={Link}
                   to="/reservation"
-                  sx={{ mx: 1 }}
+                  sx={{ mx: 1, fontSize: '10px' }}
                 >
                   Book Online
                 </Button>
@@ -291,7 +298,7 @@ const NavBar = () => {
               pt={1}
               sx={{ objectFit: 'contain', objectPosition: 'center' }}
             >
-              <img src={Logo} alt="Logo" width="40%" height="auto" />
+              <img src={Logo} alt="Logo" width="30%" height="auto" />
             </Grid>
             <Grid item sm={6} alignSelf="flex-end" justifyContent="center" width={1}>
               <Tabs
@@ -339,7 +346,7 @@ const NavBar = () => {
                     },
                   }}
                 >
-                  <ShoppingCartIcon />
+                  <ShoppingCartIcon sx={{ fontSize: '20px' }} />
                 </Badge>
               </IconButton>
               <Box display="flex" pl={2}>
@@ -351,6 +358,7 @@ const NavBar = () => {
                     state={location}
                     sx={{
                       color: 'white',
+                      fontSize: '14px',
                       '&.MuiButton-root:hover': {
                         bgcolor: 'secondary.main',
                       },
@@ -371,7 +379,7 @@ const NavBar = () => {
                             },
                           }}
                         >
-                          <Avatar {...stringAvatar(customer?.firstName)} />
+                          <Avatar {...stringAvatar(customer?.firstName)} variant="circular" />
                         </IconButton>
                       </Tooltip>
                     </Box>

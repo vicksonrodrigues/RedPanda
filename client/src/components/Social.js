@@ -8,17 +8,17 @@ const SocialButtons = ({ color }) => (
   <Box>
     <Tooltip title="Facebook" TransitionComponent={Zoom}>
       <IconButton>
-        <FacebookIcon fontSize="small" sx={{ color }} />
+        <FacebookIcon sx={{ color, fontSize: '16px' }} />
       </IconButton>
     </Tooltip>
     <Tooltip title="Instagram" TransitionComponent={Zoom}>
       <IconButton>
-        <InstagramIcon fontSize="small" sx={{ color }} />
+        <InstagramIcon sx={{ color, fontSize: '16px' }} />
       </IconButton>
     </Tooltip>
     <Tooltip title="Twitter" TransitionComponent={Zoom}>
       <IconButton>
-        <TwitterIcon fontSize="small" sx={{ color }} />
+        <TwitterIcon sx={{ color, fontSize: '16px' }} />
       </IconButton>
     </Tooltip>
   </Box>
